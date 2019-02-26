@@ -1,0 +1,38 @@
+{
+  "name": "lalalambda",
+  "version": "0.0.0",
+  "description": "serverless hapi",
+  "main": "lib/index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "lab -a code -t 100 -L",
+    "coveralls": "lab -r lcov | coveralls"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/devinivy/lalalambda.git"
+  },
+  "keywords": [],
+  "author": "Devin Ivy <devin@bigroomstudios.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/devinivy/lalalambda/issues"
+  },
+  "homepage": "https://github.com/devinivy/lalalambda#readme",
+  "dependencies": {
+    "hoek": "6.x.x",
+    "joi": "14.x.x",
+    "rimraf": "2.x.x"
+  },
+  "peerDependencies": {
+    "hapi": ">=17 <19"
+  },
+  "devDependencies": {
+    "code": "5.x.x",
+    "coveralls": "3.x.x",
+    "hapi": "18.x.x",
+    "lab": "18.x.x"
+  }
+}
