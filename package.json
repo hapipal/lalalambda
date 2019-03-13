@@ -24,7 +24,8 @@
   "dependencies": {
     "hoek": "6.x.x",
     "joi": "14.x.x",
-    "rimraf": "2.x.x"
+    "rimraf": "2.x.x",
+    "somever": "2.x.x"
   },
   "peerDependencies": {
     "hapi": ">=17 <19"
