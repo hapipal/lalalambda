@@ -20,6 +20,8 @@ describe('Lalalambda', () => {
 
     const run = async (servicePath, argv) => {
 
+        servicePath = Path.join(__dirname, 'closet', servicePath);
+
         const serverless = new Serverless({ servicePath });
 
         const { CLI } = serverless.classes;
@@ -55,6 +57,7 @@ describe('Lalalambda', () => {
     before(async () => {
 
         try {
+            // Necessary so that handler() can require lalalambda
             await symlink('..', Path.resolve(__dirname, '..', 'node_modules/lalalambda'));
         }
         catch (err) {
@@ -64,7 +67,7 @@ describe('Lalalambda', () => {
 
     it('can invoke a basic lambda.', async () => {
 
-        const output = await run(`${__dirname}/closet/basic`, ['invoke', 'local', '--function', 'basic']);
+        const output = await run('basic', ['invoke', 'local', '--function', 'basic']);
 
         expect(output).to.contain(`"success": "basic"`);
     });
