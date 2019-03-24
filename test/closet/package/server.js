@@ -10,8 +10,8 @@ exports.deployment = async () => {
     await server.register(Lalalambda);
 
     server.lambda({
-        id: 'info-lambda',
-        handler: () => ({ success: 'infoed' })
+        id: 'package-lambda',
+        handler: () => ({ success: 'packaged' })
     });
 
     return server;

@@ -6,3 +6,4 @@ provider:
 
 plugins:
   - lalalambda
+  - serverless-offline-mock
