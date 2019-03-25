@@ -10,6 +10,7 @@ const Code = require('code');
 const Hapi = require('hapi');
 const Bounce = require('bounce');
 const Toys = require('toys');
+const Rimraf = require('rimraf');
 const StripAnsi = require('strip-ansi');
 const StreamZip = require('node-stream-zip');
 const Serverless = require('serverless');
@@ -166,6 +167,7 @@ describe('Lalalambda', () => {
             return serverless;
         };
 
+        const rimraf = Util.promisify(Rimraf);
         const symlink = Util.promisify(Fs.symlink);
 
         before(async () => {
@@ -372,7 +374,12 @@ describe('Lalalambda', () => {
                 storeEntries: true
             });
 
-            flags.onCleanup = () => zip.close();
+            flags.onCleanup = async () => {
+
+                await rimraf(Path.join(__dirname, 'closet', 'package', '.serverless'));
+
+                zip.close();
+            };
 
             await Toys.event(zip, 'ready');
 
