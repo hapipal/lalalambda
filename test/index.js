@@ -179,6 +179,109 @@ describe('Lalalambda', () => {
             }
         });
 
+        it('requires an AWS provider.', async () => {
+
+            const serverless = makeServerless('bad-provider', []);
+
+            await expect(serverless.init()).to.reject('Serverless plugin "lalalambda" initialization errored: Lalalambda requires using the serverless AWS provider.');
+        });
+
+        it('requires the nodejs runtime (incorrect).', async () => {
+
+            const serverless = makeServerless('bad-runtime', []);
+
+            await serverless.init();
+
+            await expect(serverless.run()).to.reject('Lambda "bad-runtime-lambda" must be configured with a nodejs runtime.');
+        });
+
+        it('requires the nodejs runtime (missing).', async () => {
+
+            const serverless = makeServerless('bad-runtime-missing', []);
+
+            await serverless.init();
+
+            await expect(serverless.run()).to.reject('Lambda "bad-runtime-missing-lambda" must be configured with a nodejs runtime.');
+        });
+
+        it('requires the nodejs runtime >=8.10.', async () => {
+
+            const serverless = makeServerless('bad-runtime-version', []);
+
+            await serverless.init();
+
+            await expect(serverless.run()).to.reject('Lambda "bad-runtime-version-lambda" must be configured with a nodejs runtime >=8.10.');
+        });
+
+        it('checks per-lambda nodejs runtime.', async () => {
+
+            const serverless = makeServerless('runtime-per-lambda', []);
+
+            await serverless.init();
+
+            await expect(serverless.run()).to.not.reject();
+        });
+
+        it('merges serverless and hapi lambda configs.', async () => {
+
+            const serverless = makeServerless('config-merge', []);
+
+            await serverless.init();
+            await serverless.run();
+
+            const config1 = serverless.service.getFunction('config-merge-lambda-one');
+            const config2 = serverless.service.getFunction('config-merge-lambda-two');
+
+            expect(config1).to.equal({
+                runtime: 'nodejs10.15',
+                include: ['include.js'],
+                exclude: ['exclude.js'],
+                events: [{ http: { method: 'get', path: '/one' } }],
+                memorySize: 512,
+                handler: '_lalalambda/config-merge-lambda-one.handler'
+            });
+
+            expect(config2).to.equal({
+                runtime: 'nodejs10.15',
+                include: ['also-include.js', 'include.js'],
+                exclude: ['also-exclude.js', 'exclude.js'],
+                events: [
+                    { http: { method: 'post', path: '/two' } },
+                    { http: { method: 'get', path: '/two' } }
+                ],
+                timeout: 20,
+                memorySize: 512,
+                handler: '_lalalambda/config-merge-lambda-two.handler'
+            });
+        });
+
+        it('fails when deployment does not exist.', async () => {
+
+            const serverless = makeServerless('bad-deployment-missing', []);
+
+            await serverless.init();
+
+            await expect(serverless.run()).to.reject(/No server found/);
+        });
+
+        it('fails when deployment has wrong exports.', async () => {
+
+            const serverless = makeServerless('bad-deployment-exports', []);
+
+            await serverless.init();
+
+            await expect(serverless.run()).to.reject(/No server found/);
+        });
+
+        it('fails when deployment throws while being required.', async () => {
+
+            const serverless = makeServerless('bad-deployment-error', []);
+
+            await serverless.init();
+
+            await expect(serverless.run()).to.reject(`Cannot find module 'does-not-exist'`);
+        });
+
         it('can locally invoke a lambda registered by hapi.', async () => {
 
             const serverless = makeServerless('invoke', ['invoke', 'local', '--function', 'invoke-lambda']);
@@ -188,6 +291,22 @@ describe('Lalalambda', () => {
             const output = await serverless.run();
 
             expect(output).to.contain(`"success": "invoked"`);
+        });
+
+        it('invokes lambdas registered by hapi with server and bound context.', async () => {
+
+            const serverless = makeServerless('invoke-context', ['invoke', 'local', '--function', 'invoke-context-lambda', '--data', '{"an":"occurrence"}']);
+
+            await serverless.init();
+
+            const output = await serverless.run();
+            const result = JSON.parse(output);
+
+            expect(result).to.only.contain(['plugins', 'bind', 'event', 'ctx']);
+            expect(result.plugins).to.equal(['lalalambda']);
+            expect(result.bind).to.equal({ some: 'data' });
+            expect(result.event).to.equal({ an: 'occurrence' });
+            expect(result.ctx).to.contain({ functionName: 'my-service-dev-invoke-context-lambda' });
         });
 
         it('can provide info on lambdas registered by hapi.', async (flags) => {
@@ -278,12 +397,13 @@ describe('Lalalambda', () => {
                 exports.handler = Lalalambda.handler('package-lambda', Path.resolve(__dirname, '..'));
             `));
 
-            const cfZipFile = await readFile(Path.join(__dirname, 'closet', 'package', '.serverless', 'cloudformation-template-update-stack.json'));
-            const cfTemplate = JSON.parse(cfZipFile.toString());
+            const cfFile = await readFile(Path.join(__dirname, 'closet', 'package', '.serverless', 'cloudformation-template-update-stack.json'));
+            const cfTemplate = JSON.parse(cfFile.toString());
 
             const lambdaTemplate = Object.values(cfTemplate.Resources)
                 .find((resource) => resource.Type === 'AWS::Lambda::Function');
 
+            expect(lambdaTemplate).to.exist();
             expect(lambdaTemplate.Properties).to.contain({
                 FunctionName: 'my-service-dev-package-lambda',
                 Handler: '_lalalambda/package-lambda.handler',

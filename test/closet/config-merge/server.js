@@ -1,0 +1,47 @@
+'use strict';
+
+const Hapi = require('hapi');
+const Lalalambda = require('../../..');
+
+exports.deployment = async () => {
+
+    const server = Hapi.server();
+
+    await server.register(Lalalambda);
+
+    server.lambda({
+        id: 'config-merge-lambda-one',
+        options: {
+            runtime: 'nodejs10.15',
+            memorySize: 512,
+            exclude: ['exclude.js'],
+            include: ['include.js'],
+            events: [{
+                http: {
+                    method: 'get',
+                    path: '/one'
+                }
+            }],
+            handler: () => ({ success: true })
+        }
+    });
+
+    server.lambda({
+        id: 'config-merge-lambda-two',
+        options: {
+            runtime: 'nodejs10.15',
+            memorySize: 512,
+            exclude: ['exclude.js'],
+            include: ['include.js'],
+            events: [{
+                http: {
+                    method: 'get',
+                    path: '/two'
+                }
+            }],
+            handler: () => ({ success: true })
+        }
+    });
+
+    return server;
+};

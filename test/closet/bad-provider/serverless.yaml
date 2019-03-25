@@ -1,0 +1,7 @@
+service: my-service
+
+provider:
+  name: azure
+
+plugins:
+  - lalalambda

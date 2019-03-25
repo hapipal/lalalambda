@@ -1,0 +1,12 @@
+service: my-service
+
+provider:
+  name: aws
+  runtime: nodejs8.9
+
+plugins:
+  - lalalambda
+
+functions:
+  runtime-per-lambda-lambda:
+    runtime: nodejs8.10

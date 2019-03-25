@@ -1,0 +1,21 @@
+service: my-service
+
+provider:
+  name: aws
+  runtime: nodejs8.10
+
+plugins:
+  - lalalambda
+
+functions:
+  config-merge-lambda-two:
+    runtime: nodejs8.10
+    include:
+      - also-include.js
+    exclude:
+      - also-exclude.js
+    events:
+      - http:
+          method: post
+          path: /two
+    timeout: 20
