@@ -1,6 +1,6 @@
 {
   "name": "lalalambda",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "serverless hapi",
   "main": "lib/index.js",
   "directories": {
