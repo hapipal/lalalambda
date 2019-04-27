@@ -31,7 +31,6 @@
     "hapi": ">=17 <19"
   },
   "devDependencies": {
-    "bounce": "1.x.x",
     "code": "5.x.x",
     "coveralls": "3.x.x",
     "hapi": "18.x.x",
