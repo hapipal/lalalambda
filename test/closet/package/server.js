@@ -1,6 +1,6 @@
 'use strict';
 
-const Hapi = require('hapi');
+const Hapi = require('@hapi/hapi');
 const Lalalambda = require('../../..');
 
 exports.deployment = async () => {

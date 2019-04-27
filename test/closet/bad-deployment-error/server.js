@@ -1,6 +1,6 @@
 'use strict';
 
-const Hapi = require('hapi');
+const Hapi = require('@hapi/hapi');
 const DoesNotExist = require('does-not-exist');
 const Lalalambda = require('../../..');
 
