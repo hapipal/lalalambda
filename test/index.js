@@ -11,9 +11,8 @@ const Hapi = require('@hapi/hapi');
 const Bounce = require('@hapi/bounce');
 const Toys = require('toys');
 const Rimraf = require('rimraf');
-const StripAnsi = require('strip-ansi');
 const StreamZip = require('node-stream-zip');
-const Serverless = require('serverless');
+const Helpers = require('./helpers');
 const Lalalambda = require('..');
 
 // Test shortcuts
@@ -22,6 +21,20 @@ const { describe, it, before } = exports.lab = Lab.script();
 const { expect } = Code;
 
 describe('Lalalambda', () => {
+
+    const rimraf = Util.promisify(Rimraf);
+    const symlink = Util.promisify(Fs.symlink);
+
+    before(async () => {
+
+        try {
+            // Necessary so that handler() can require lalalambda
+            await symlink('..', Path.resolve(__dirname, '..', 'node_modules/lalalambda'));
+        }
+        catch (err) {
+            Bounce.ignore(err, { code: 'EEXIST' });
+        }
+    });
 
     describe('the hapi plugin', () => {
 
@@ -36,6 +49,30 @@ describe('Lalalambda', () => {
             };
 
             await expect(registerTwice()).to.not.reject();
+        });
+
+        it('cannot be registered with lambdaify option multiple times.', async () => {
+
+            const server = Hapi.server();
+
+            const registerTwice = async () => {
+
+                await server.register({
+                    plugin: Lalalambda,
+                    options: {
+                        lambdaify: 'xxx'
+                    }
+                });
+
+                await server.register({
+                    plugin: Lalalambda,
+                    options: {
+                        lambdaify: 'xxx'
+                    }
+                });
+            };
+
+            await expect(registerTwice()).to.reject(`Lalalambda's lambdaify option can only be specified once.`);
         });
 
         it('can register a lambda with unknown options.', async () => {
@@ -127,70 +164,16 @@ describe('Lalalambda', () => {
 
     describe('the serverless plugin', () => {
 
-        const makeServerless = (servicePath, argv) => {
-
-            servicePath = Path.join(__dirname, 'closet', servicePath);
-
-            const serverless = new Serverless({ servicePath });
-
-            const { CLI } = serverless.classes;
-
-            serverless.classes.CLI = class MockCLI extends CLI {
-
-                constructor(sls) {
-
-                    super(sls, argv);
-
-                    this.output = '';
-                }
-
-                consoleLog(msg) {
-
-                    this.output += `${msg}\n`;
-                }
-
-                printDot() {
-
-                    this.output += '.';
-                }
-            };
-
-            const { run } = serverless;
-
-            serverless.run = async () => {
-
-                await run.call(serverless);
-
-                return StripAnsi(serverless.cli.output);
-            };
-
-            return serverless;
-        };
-
-        const rimraf = Util.promisify(Rimraf);
-        const symlink = Util.promisify(Fs.symlink);
-
-        before(async () => {
-
-            try {
-                // Necessary so that handler() can require lalalambda
-                await symlink('..', Path.resolve(__dirname, '..', 'node_modules/lalalambda'));
-            }
-            catch (err) {
-                Bounce.ignore(err, { code: 'EEXIST' });
-            }
-        });
-
         it('requires an AWS provider.', async () => {
 
-            const serverless = makeServerless('bad-provider', []);
+            const serverless = Helpers.makeServerless('bad-provider', []);
 
             await expect(serverless.init()).to.reject('Serverless plugin "lalalambda" initialization errored: Lalalambda requires using the serverless AWS provider.');
         });
 
         it('requires the nodejs runtime (incorrect).', async () => {
 
-            const serverless = makeServerless('bad-runtime', []);
+            const serverless = Helpers.makeServerless('bad-runtime', []);
 
             await serverless.init();
 
@@ -199,7 +182,7 @@ describe('Lalalambda', () => {
 
         it('requires the nodejs runtime (missing).', async () => {
 
-            const serverless = makeServerless('bad-runtime-missing', []);
+            const serverless = Helpers.makeServerless('bad-runtime-missing', []);
 
             await serverless.init();
 
@@ -208,7 +191,7 @@ describe('Lalalambda', () => {
 
         it('requires the nodejs runtime >=8.10.', async () => {
 
-            const serverless = makeServerless('bad-runtime-version', []);
+            const serverless = Helpers.makeServerless('bad-runtime-version', []);
 
             await serverless.init();
 
@@ -217,7 +200,7 @@ describe('Lalalambda', () => {
 
         it('checks per-lambda nodejs runtime.', async () => {
 
-            const serverless = makeServerless('runtime-per-lambda', []);
+            const serverless = Helpers.makeServerless('runtime-per-lambda', []);
 
             await serverless.init();
 
@@ -226,7 +209,7 @@ describe('Lalalambda', () => {
 
         it('merges serverless and hapi lambda configs.', async () => {
 
-            const serverless = makeServerless('config-merge', []);
+            const serverless = Helpers.makeServerless('config-merge', []);
 
             await serverless.init();
             await serverless.run();
@@ -259,7 +242,7 @@ describe('Lalalambda', () => {
 
         it('fails when deployment does not exist.', async () => {
 
-            const serverless = makeServerless('bad-deployment-missing', []);
+            const serverless = Helpers.makeServerless('bad-deployment-missing', []);
 
             await serverless.init();
 
@@ -268,7 +251,7 @@ describe('Lalalambda', () => {
 
         it('fails when deployment has wrong exports.', async () => {
 
-            const serverless = makeServerless('bad-deployment-exports', []);
+            const serverless = Helpers.makeServerless('bad-deployment-exports', []);
 
             await serverless.init();
 
@@ -277,7 +260,7 @@ describe('Lalalambda', () => {
 
         it('fails when deployment throws while being required.', async () => {
 
-            const serverless = makeServerless('bad-deployment-error', []);
+            const serverless = Helpers.makeServerless('bad-deployment-error', []);
 
             await serverless.init();
 
@@ -286,7 +269,7 @@ describe('Lalalambda', () => {
 
         it('can locally invoke a lambda registered by hapi.', async () => {
 
-            const serverless = makeServerless('invoke', ['invoke', 'local', '--function', 'invoke-lambda']);
+            const serverless = Helpers.makeServerless('invoke', ['invoke', 'local', '--function', 'invoke-lambda']);
 
             await serverless.init();
 
@@ -297,7 +280,7 @@ describe('Lalalambda', () => {
 
         it('invokes lambdas registered by hapi with server and bound context.', async () => {
 
-            const serverless = makeServerless('invoke-context', ['invoke', 'local', '--function', 'invoke-context-lambda', '--data', '{"an":"occurrence"}']);
+            const serverless = Helpers.makeServerless('invoke-context', ['invoke', 'local', '--function', 'invoke-context-lambda', '--data', '{"an":"occurrence"}']);
 
             await serverless.init();
 
@@ -313,7 +296,7 @@ describe('Lalalambda', () => {
 
         it('can provide info on lambdas registered by hapi.', async (flags) => {
 
-            const serverless = makeServerless('info', ['info']);
+            const serverless = Helpers.makeServerless('info', ['info']);
 
             await serverless.init();
 
@@ -343,28 +326,24 @@ describe('Lalalambda', () => {
 
         it('interoperates with the offline plugin.', { plan: 2 }, async () => {
 
-            const serverless = makeServerless('offline', ['offline', 'start']);
+            const serverless = Helpers.makeServerless('offline', ['offline', 'start']);
 
             await serverless.init();
 
-            const offline = serverless.pluginManager.plugins
-                .find((p) => p.constructor.name === 'OfflineMock');
-
-            offline._listenForTermination = async () => {
+            await Helpers.offline(serverless, async (offline) => {
 
                 const { result: result1 } = await offline.server.inject('/one');
                 const { result: result2 } = await offline.server.inject('/two');
 
                 expect(result1).to.contain(`"success":"offlined-one"`);
                 expect(result2).to.contain(`"success":"offlined-two"`);
-            };
 
-            await serverless.run();
+            }).run();
         });
 
         it('can package lambdas with proper handlers.', async (flags) => {
 
-            const serverless = makeServerless('package', ['package']);
+            const serverless = Helpers.makeServerless('package', ['package']);
 
             await serverless.init();
             await serverless.run();
