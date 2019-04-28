@@ -160,6 +160,605 @@ describe('Lalalambda', () => {
 
             expect(() => server.lambda({ id: 'x', handler: () => null })).to.throw('Lambda "x" has already been registered.');
         });
+
+        describe('lambdaizes routes', () => {
+
+            it('only when the route is configured.', async () => {
+
+                const server = Hapi.server();
+                await server.register(Lalalambda);
+
+                server.route({
+                    method: 'get',
+                    path: '/',
+                    options: {
+                        id: 'x',
+                        handler: () => null
+                    }
+                });
+
+                await server.initialize();
+
+                const lambda = server.plugins.lalalambda.lambdas.get('x');
+
+                expect(lambda).to.not.exist();
+            });
+
+            it('using a route id.', async () => {
+
+                const server = Hapi.server();
+                await server.register(Lalalambda);
+
+                server.route({
+                    method: 'get',
+                    path: '/',
+                    options: {
+                        id: 'x',
+                        plugins: {
+                            lalalambda: true
+                        },
+                        handler: () => null
+                    }
+                });
+
+                await server.initialize();
+
+                const lambda = server.plugins.lalalambda.lambdas.get('x');
+
+                expect(lambda.id).to.equal('x');
+                expect(lambda.settings).to.equal({
+                    events: [
+                        {
+                            http: {
+                                method: 'get',
+                                path: '/',
+                                cors: false
+                            }
+                        }
+                    ]
+                });
+            });
+
+            it('using a lambda id.', async () => {
+
+                const server = Hapi.server();
+                await server.register(Lalalambda);
+
+                server.route({
+                    method: 'get',
+                    path: '/',
+                    options: {
+                        id: 'x',
+                        plugins: {
+                            lalalambda: 'y'
+                        },
+                        handler: () => null
+                    }
+                });
+
+                await server.initialize();
+
+                const lambda = server.plugins.lalalambda.lambdas.get('y');
+
+                expect(lambda.id).to.equal('y');
+                expect(lambda.settings).to.equal({
+                    events: [
+                        {
+                            http: {
+                                method: 'get',
+                                path: '/',
+                                cors: false
+                            }
+                        }
+                    ]
+                });
+            });
+
+            it('using a lambda config.', async () => {
+
+                const server = Hapi.server();
+                await server.register(Lalalambda);
+
+                server.route({
+                    method: 'get',
+                    path: '/',
+                    options: {
+                        id: 'x',
+                        plugins: {
+                            lalalambda: {
+                                id: 'y',
+                                options: {
+                                    runtime: 'nodejs10.15'
+                                }
+                            }
+                        },
+                        handler: () => null
+                    }
+                });
+
+                await server.initialize();
+
+                const lambda = server.plugins.lalalambda.lambdas.get('y');
+
+                expect(lambda.id).to.equal('y');
+                expect(lambda.settings).to.equal({
+                    runtime: 'nodejs10.15',
+                    events: [
+                        {
+                            http: {
+                                method: 'get',
+                                path: '/',
+                                cors: false
+                            }
+                        }
+                    ]
+                });
+            });
+
+            it('with various methods.', async () => {
+
+                const server = Hapi.server();
+                await server.register(Lalalambda);
+
+                server.route([
+                    {
+                        method: '*',
+                        path: '/x',
+                        options: {
+                            plugins: {
+                                lalalambda: 'x'
+                            },
+                            handler: () => null
+                        }
+                    },
+                    {
+                        method: 'patch',
+                        path: '/y',
+                        options: {
+                            plugins: {
+                                lalalambda: 'y'
+                            },
+                            handler: () => null
+                        }
+                    }
+                ]);
+
+                await server.initialize();
+
+                const lambdaX = server.plugins.lalalambda.lambdas.get('x');
+
+                expect(lambdaX.id).to.equal('x');
+                expect(lambdaX.settings).to.equal({
+                    events: [
+                        {
+                            http: {
+                                method: 'any',
+                                path: '/x',
+                                cors: false
+                            }
+                        }
+                    ]
+                });
+
+                const lambdaY = server.plugins.lalalambda.lambdas.get('y');
+
+                expect(lambdaY.id).to.equal('y');
+                expect(lambdaY.settings).to.equal({
+                    events: [
+                        {
+                            http: {
+                                method: 'patch',
+                                path: '/y',
+                                cors: false
+                            }
+                        }
+                    ]
+                });
+            });
+
+            it('erroring for unsupported path patterns.', async () => {
+
+                const serverA = Hapi.server();
+                await serverA.register(Lalalambda);
+
+                serverA.route({
+                    method: 'get',
+                    path: '/a/{b*2}/c',
+                    options: {
+                        plugins: {
+                            lalalambda: 'x'
+                        },
+                        handler: () => null
+                    }
+                });
+
+                expect(serverA.initialize()).to.reject('Routes configured with lalalambda may not have multi-segment path params such as "get /a/{b*2}/c".');
+
+                const serverB = Hapi.server();
+                await serverB.register(Lalalambda);
+
+                serverB.route({
+                    method: 'get',
+                    path: '/a/{b}.jpg',
+                    options: {
+                        plugins: {
+                            lalalambda: 'x'
+                        },
+                        handler: () => null
+                    }
+                });
+
+                expect(serverB.initialize()).to.reject('Routes configured with lalalambda may not have partial-segment path params such as "get /a/{b}.jpg".');
+            });
+
+            it('with an optional final param.', async () => {
+
+                const server = Hapi.server();
+                await server.register(Lalalambda);
+
+                server.route([
+                    {
+                        method: 'get',
+                        path: '/{a?}',
+                        options: {
+                            plugins: {
+                                lalalambda: 'x'
+                            },
+                            handler: () => null
+                        }
+                    },
+                    {
+                        method: 'get',
+                        path: '/a/{b}/c/{d?}',
+                        options: {
+                            plugins: {
+                                lalalambda: 'y'
+                            },
+                            handler: () => null
+                        }
+                    }
+                ]);
+
+                await server.initialize();
+
+                const lambdaX = server.plugins.lalalambda.lambdas.get('x');
+
+                expect(lambdaX.id).to.equal('x');
+                expect(lambdaX.settings).to.equal({
+                    events: [
+                        {
+                            http: {
+                                method: 'get',
+                                path: '/{a}',
+                                cors: false
+                            }
+                        },
+                        {
+                            http: {
+                                method: 'get',
+                                path: '/',
+                                cors: false
+                            }
+                        }
+                    ]
+                });
+
+                const lambdaY = server.plugins.lalalambda.lambdas.get('y');
+
+                expect(lambdaY.id).to.equal('y');
+                expect(lambdaY.settings).to.equal({
+                    events: [
+                        {
+                            http: {
+                                method: 'get',
+                                path: '/a/{b}/c/{d}',
+                                cors: false
+                            }
+                        },
+                        {
+                            http: {
+                                method: 'get',
+                                path: '/a/{b}/c',
+                                cors: false
+                            }
+                        }
+                    ]
+                });
+            });
+
+            it('with a wildcard param.', async () => {
+
+                const server = Hapi.server();
+                await server.register(Lalalambda);
+
+                server.route({
+                    method: 'get',
+                    path: '/a/{b}/c/{d*}',
+                    options: {
+                        plugins: {
+                            lalalambda: 'x'
+                        },
+                        handler: () => null
+                    }
+                });
+
+                await server.initialize();
+
+                const lambda = server.plugins.lalalambda.lambdas.get('x');
+
+                expect(lambda.id).to.equal('x');
+                expect(lambda.settings).to.equal({
+                    events: [
+                        {
+                            http: {
+                                method: 'get',
+                                path: '/a/{b}/c/{proxy+}',
+                                cors: false
+                            }
+                        }
+                    ]
+                });
+            });
+
+            it('with cors settings.', async () => {
+
+                const server = Hapi.server();
+                await server.register(Lalalambda);
+
+                server.route([
+                    {
+                        method: 'get',
+                        path: '/x',
+                        options: {
+                            plugins: {
+                                lalalambda: 'x'
+                            },
+                            cors: true,
+                            handler: () => null
+                        }
+                    },
+                    {
+                        method: 'get',
+                        path: '/y',
+                        options: {
+                            plugins: {
+                                lalalambda: 'y'
+                            },
+                            cors: {
+                                origin: ['xyz.com'],
+                                headers: ['x-one'],
+                                additionalHeaders: ['x-two'],
+                                maxAge: 420,
+                                credentials: true
+                            },
+                            handler: () => null
+                        }
+                    }
+                ]);
+
+                await server.initialize();
+
+                const lambdaX = server.plugins.lalalambda.lambdas.get('x');
+
+                expect(lambdaX.id).to.equal('x');
+                expect(lambdaX.settings).to.equal({
+                    events: [
+                        {
+                            http: {
+                                method: 'get',
+                                path: '/x',
+                                cors: {
+                                    headers: [
+                                        'Accept',
+                                        'Authorization',
+                                        'Content-Type',
+                                        'If-None-Match'
+                                    ],
+                                    maxAge: 86400,
+                                    origins: ['*'],
+                                    withCredentials: false
+                                }
+                            }
+                        }
+                    ]
+                });
+
+                const lambdaY = server.plugins.lalalambda.lambdas.get('y');
+
+                expect(lambdaY.id).to.equal('y');
+                expect(lambdaY.settings).to.equal({
+                    events: [
+                        {
+                            http: {
+                                method: 'get',
+                                path: '/y',
+                                cors: {
+                                    headers: [
+                                        'x-one',
+                                        'x-two'
+                                    ],
+                                    maxAge: 420,
+                                    origins: ['xyz.com'],
+                                    withCredentials: true
+                                }
+                            }
+                        }
+                    ]
+                });
+            });
+
+            it('with a plugin route prefix.', async () => {
+
+                const server = Hapi.server();
+                await server.register(Lalalambda);
+
+                const plugin = {
+                    name: 'my-plugin',
+                    register: (srv) => {
+
+                        srv.route([
+                            {
+                                method: 'get',
+                                path: '/',
+                                options: {
+                                    plugins: {
+                                        lalalambda: 'x'
+                                    },
+                                    handler: () => null
+                                }
+                            },
+                            {
+                                method: 'get',
+                                path: '/a/{b}/c',
+                                options: {
+                                    plugins: {
+                                        lalalambda: 'y'
+                                    },
+                                    handler: () => null
+                                }
+                            }
+                        ]);
+                    }
+                };
+
+                await server.register(plugin, {
+                    routes: {
+                        prefix: '/prefixed'
+                    }
+                });
+
+                await server.initialize();
+
+                const lambdaX = server.plugins.lalalambda.lambdas.get('x');
+
+                expect(lambdaX.id).to.equal('x');
+                expect(lambdaX.settings).to.equal({
+                    events: [
+                        {
+                            http: {
+                                method: 'get',
+                                path: '/prefixed',
+                                cors: false
+                            }
+                        }
+                    ]
+                });
+
+                const lambdaY = server.plugins.lalalambda.lambdas.get('y');
+
+                expect(lambdaY.id).to.equal('y');
+                expect(lambdaY.settings).to.equal({
+                    events: [
+                        {
+                            http: {
+                                method: 'get',
+                                path: '/prefixed/a/{b}/c',
+                                cors: false
+                            }
+                        }
+                    ]
+                });
+            });
+
+            it('overriding event lambda config.', async () => {
+
+                const server = Hapi.server();
+                await server.register(Lalalambda);
+
+                server.route([
+                    {
+                        method: 'get',
+                        path: '/a/{b}',
+                        options: {
+                            plugins: {
+                                lalalambda: {
+                                    id: 'x',
+                                    options: {
+                                        events: [
+                                            {
+                                                http: {
+                                                    method: 'get',
+                                                    path: '/a/{x}'
+                                                }
+                                            }
+                                        ]
+                                    }
+                                }
+                            },
+                            handler: () => null
+                        }
+                    },
+                    {
+                        method: 'get',
+                        path: '/c/{d?}',
+                        options: {
+                            plugins: {
+                                lalalambda: {
+                                    id: 'y',
+                                    options: {
+                                        events: ([ev1, ev2]) => ([
+                                            {
+                                                http: {
+                                                    ...ev1.http,
+                                                    async: true
+                                                }
+                                            },
+                                            {
+                                                http: {
+                                                    ...ev2.http,
+                                                    async: true
+                                                }
+                                            }
+                                        ])
+                                    }
+                                }
+                            },
+                            handler: () => null
+                        }
+                    }
+                ]);
+
+                await server.initialize();
+
+                const lambdaX = server.plugins.lalalambda.lambdas.get('x');
+
+                expect(lambdaX.id).to.equal('x');
+                expect(lambdaX.settings).to.equal({
+                    events: [
+                        {
+                            http: {
+                                method: 'get',
+                                path: '/a/{x}'
+                            }
+                        }
+                    ]
+                });
+
+                const lambdaY = server.plugins.lalalambda.lambdas.get('y');
+
+                expect(lambdaY.id).to.equal('y');
+                expect(lambdaY.settings).to.equal({
+                    events: [
+                        {
+                            http: {
+                                method: 'get',
+                                path: '/c/{d}',
+                                cors: false,
+                                async: true
+                            }
+                        },
+                        {
+                            http: {
+                                method: 'get',
+                                path: '/c',
+                                cors: false,
+                                async: true
+                            }
+                        }
+                    ]
+                });
+            });
+        });
     });
 
     describe('the serverless plugin', () => {
