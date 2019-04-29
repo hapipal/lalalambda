@@ -51,30 +51,6 @@ describe('Lalalambda', () => {
             await expect(registerTwice()).to.not.reject();
         });
 
-        it('cannot be registered with lambdaify option multiple times.', async () => {
-
-            const server = Hapi.server();
-
-            const registerTwice = async () => {
-
-                await server.register({
-                    plugin: Lalalambda,
-                    options: {
-                        lambdaify: 'xxx'
-                    }
-                });
-
-                await server.register({
-                    plugin: Lalalambda,
-                    options: {
-                        lambdaify: 'xxx'
-                    }
-                });
-            };
-
-            await expect(registerTwice()).to.reject(`Lalalambda's lambdaify option can only be specified once.`);
-        });
-
         it('can register a lambda with unknown options.', async () => {
 
             const server = Hapi.server();
@@ -757,6 +733,148 @@ describe('Lalalambda', () => {
                         }
                     ]
                 });
+            });
+        });
+
+        describe('lambdaize plugin option', () => {
+
+            it('cannot be used more than once.', async () => {
+
+                const server = Hapi.server();
+
+                const registerTwice = async () => {
+
+                    await server.register({
+                        plugin: Lalalambda,
+                        options: {
+                            lambdaify: 'x'
+                        }
+                    });
+
+                    await server.register({
+                        plugin: Lalalambda,
+                        options: {
+                            lambdaify: 'y'
+                        }
+                    });
+                };
+
+                await expect(registerTwice()).to.reject(`Lalalambda's lambdaify option can only be specified once.`);
+            });
+
+            it('can be configured using a lambda id.', async () => {
+
+                const server = Hapi.server();
+
+                await server.register({
+                    plugin: Lalalambda,
+                    options: {
+                        lambdaify: 'x'
+                    }
+                });
+
+                const lambda = server.plugins.lalalambda.lambdas.get('x');
+
+                expect(lambda.id).to.equal('x');
+                expect(lambda.settings).to.equal({
+                    events: [
+                        {
+                            http: {
+                                method: 'any',
+                                path: '/{proxy+}'
+                            }
+                        }
+                    ]
+                });
+            });
+
+            it('can be configured using a lambda config.', async () => {
+
+                const server = Hapi.server();
+
+                await server.register({
+                    plugin: Lalalambda,
+                    options: {
+                        lambdaify: {
+                            id: 'x',
+                            options: {
+                                runtime: 'nodejs10.15'
+                            }
+                        }
+                    }
+                });
+
+                const lambda = server.plugins.lalalambda.lambdas.get('x');
+
+                expect(lambda.id).to.equal('x');
+                expect(lambda.settings).to.equal({
+                    runtime: 'nodejs10.15',
+                    events: [
+                        {
+                            http: {
+                                method: 'any',
+                                path: '/{proxy+}'
+                            }
+                        }
+                    ]
+                });
+            });
+
+            it('can be configured using a lambda config with events specified as a function.', async () => {
+
+                const server = Hapi.server();
+
+                await server.register({
+                    plugin: Lalalambda,
+                    options: {
+                        lambdaify: {
+                            id: 'x',
+                            options: {
+                                events: ([{ http }]) => ([
+                                    {
+                                        http: {
+                                            ...http,
+                                            async: true
+                                        }
+                                    }
+                                ])
+                            }
+                        }
+                    }
+                });
+
+                const lambda = server.plugins.lalalambda.lambdas.get('x');
+
+                expect(lambda.id).to.equal('x');
+                expect(lambda.settings).to.equal({
+                    events: [
+                        {
+                            http: {
+                                method: 'any',
+                                path: '/{proxy+}',
+                                async: true
+                            }
+                        }
+                    ]
+                });
+            });
+
+            it('cannot be configured without an id.', async () => {
+
+                const register = async (config) => {
+
+                    const server = Hapi.server();
+
+                    await server.register({
+                        plugin: Lalalambda,
+                        options: {
+                            lambdaify: config
+                        }
+                    });
+                };
+
+                await expect(register(true)).to.reject(`Lalalambda's lambdaize registration option must be configured with an id.`);
+                await expect(register({})).to.reject(`Lalalambda's lambdaize registration option must be configured with an id.`);
             });
         });
     });
