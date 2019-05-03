@@ -5,6 +5,7 @@
 const Fs = require('fs');
 const Path = require('path');
 const Util = require('util');
+const Zlib = require('zlib');
 const Lab = require('@hapi/lab');
 const Code = require('@hapi/code');
 const Hapi = require('@hapi/hapi');
@@ -875,6 +876,211 @@ describe('Lalalambda', () => {
 
                 await expect(register(true)).to.reject(`Lalalambda's lambdaize registration option must be configured with an id.`);
                 await expect(register({})).to.reject(`Lalalambda's lambdaize registration option must be configured with an id.`);
+            });
+        });
+
+        describe('http handler', () => {
+
+            it('handles a simple request with query params.', async (flags) => {
+
+                const serverless = Helpers.makeServerless('offline-canvas', ['offline', 'start']);
+                await serverless.init();
+                const server = await Helpers.getLalalambdaServer(serverless);
+                flags.onCleanup = Helpers.useServer('offline-canvas', server);
+
+                await server.stop();
+
+                server.route({
+                    method: 'get',
+                    path: '/',
+                    options: {
+                        plugins: {
+                            lalalambda: 'simple'    // Each test needs its own ids due to require() cache
+                        },
+                        handler: ({ query }) => ({ a: query.b })
+                    }
+                });
+
+                await server.initialize();
+
+                await Helpers.offline(serverless, async (offline) => {
+
+                    const { result } = await offline.server.inject('/?b=b');
+
+                    expect(result).to.equal('{"a":"b"}');
+
+                }).run();
+            });
+
+            it('handles multiple headers.', async (flags) => {
+
+                const serverless = Helpers.makeServerless('offline-canvas', ['offline', 'start']);
+                await serverless.init();
+                const server = await Helpers.getLalalambdaServer(serverless);
+                flags.onCleanup = Helpers.useServer('offline-canvas', server);
+
+                await server.stop();
+
+                server.route({
+                    method: 'get',
+                    path: '/',
+                    options: {
+                        plugins: {
+                            lalalambda: 'headers'
+                        },
+                        handler: ({ headers }) => headers
+                    }
+                });
+
+                await server.initialize();
+
+                await Helpers.offline(serverless, async (offline) => {
+
+                    const { result } = await offline.server.inject({
+                        method: 'get',
+                        url: '/',
+                        headers: {
+                            'x-a': 'test-x',
+                            'x-b': ['test-x'],
+                            'x-c': ['test-x', 'test-y']
+                        }
+                    });
+
+                    expect(JSON.parse(result)).to.contain({
+                        'x-a': 'test-x',
+                        'x-b': 'test-x',
+                        'x-c': ['test-x', 'test-y']
+                    });
+
+                }).run();
+            });
+
+            it('handles binary vs non-binary responses.', async (flags) => {
+
+                const serverless = Helpers.makeServerless('offline-canvas', ['offline', 'start']);
+                await serverless.init();
+                const server = await Helpers.getLalalambdaServer(serverless);
+                flags.onCleanup = Helpers.useServer('offline-canvas', server);
+
+                await server.stop();
+
+                server.route({
+                    method: 'get',
+                    path: '/type-no-charset',
+                    options: {
+                        plugins: {
+                            lalalambda: 'binary1'
+                        },
+                        handler: (request, h) => h.response(Buffer.from('binary1'))
+                    }
+                });
+
+                server.route({
+                    method: 'get',
+                    path: '/type-empty',
+                    options: {
+                        plugins: {
+                            lalalambda: 'binary2'
+                        },
+                        handler: (request, h) => {
+
+                            const response = h.response('binary2').type('');
+
+                            response._contentType = null;
+
+                            return response;
+                        }
+                    }
+                });
+
+                server.route({
+                    method: 'get',
+                    path: '/encoding-identity',
+                    options: {
+                        plugins: {
+                            lalalambda: 'binary3'
+                        },
+                        handler: (request, h) => h.response('binary3').header('content-encoding', 'identity')
+                    }
+                });
+
+                server.route({
+                    method: 'get',
+                    path: '/encoding-gzip',
+                    options: {
+                        plugins: {
+                            lalalambda: 'binary4'
+                        },
+                        handler: (request, h) => h.response(Zlib.gzipSync('binary4')).header('content-encoding', 'gzip')
+                    }
+                });
+
+                await server.initialize();
+
+                await Helpers.offline(serverless, async (offline) => {
+
+                    const { result: result1 } = await offline.server.inject('/type-no-charset');
+                    expect(result1).to.equal('binary1');
+
+                    // Note that the type doesn't come-down empty here even though it's interpreted as empty by this plugin.
+                    // That's because serverless-offline can't unset the header. We had to dip into hapi internals to unset this header.
+                    const { result: result2 } = await offline.server.inject('/type-empty');
+                    expect(result2).to.equal('binary2');
+
+                    const { result: result3 } = await offline.server.inject('/encoding-identity');
+                    expect(result3).to.equal('binary3');
+
+                    const { rawPayload } = await offline.server.inject('/encoding-gzip');
+                    expect(Zlib.gunzipSync(rawPayload).toString()).to.equal('binary4');
+
+                }).run();
+            });
+
+            it('handles base64 event payloads.', async (flags) => {
+
+                const serverless = Helpers.makeServerless('offline-canvas', ['offline', 'start']);
+                await serverless.init();
+                const server = await Helpers.getLalalambdaServer(serverless);
+                flags.onCleanup = Helpers.useServer('offline-canvas', server);
+
+                await server.stop();
+
+                server.route({
+                    method: 'post',
+                    path: '/',
+                    options: {
+                        plugins: {
+                            lalalambda: 'base64'
+                        },
+                        handler: ({ payload }) => payload
+                    }
+                });
+
+                await server.initialize();
+
+                const lambda = server.plugins.lalalambda.lambdas.get('base64');
+                const { handler } = lambda;
+                lambda.handler = (evt, ...args) => {
+
+                    evt.body = Buffer.from(evt.body).toString('base64');
+                    evt.isBase64Encoded = true;
+
+                    return handler(evt, ...args);
+                };
+
+                await Helpers.offline(serverless, async (offline) => {
+
+                    const { result } = await offline.server.inject({
+                        method: 'post',
+                        url: '/',
+                        payload: {
+                            some: 'json'
+                        }
+                    });
+
+                    expect(result).to.equal('{"some":"json"}');
+
+                }).run();
             });
         });
     });

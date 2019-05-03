@@ -55,16 +55,55 @@ exports.offline = (serverless, withOffline) => {
     return serverless;
 };
 
+exports.getLalalambdaServer = async (serverless) => {
+
+    const lalalambda = serverless.pluginManager.plugins
+        .find((p) => p.constructor.name === 'LalalambdaServerlessPlugin');
+
+    await lalalambda.initialize();
+
+    return lalalambda.server;
+};
+
+exports.useServer = (servicePath, server) => {
+
+    const serviceServerPath = Path.join(__dirname, 'closet', servicePath, 'server');
+
+    const serviceServer = require(serviceServerPath);
+
+    const { deployment } = serviceServer;
+
+    serviceServer.deployment = () => server;
+
+    return () => Object.assign(serviceServer, { deployment });
+};
+
 exports.OfflineMock = class OfflineMock extends Offline {
 
     constructor(...args) {
 
         super(...args);
 
+        // Allows useServer() helper to work
+        this.options.skipCacheInvalidation = true;
+
         this.serverlessLog = (...logs) => this.serverless.cli.log(...logs);
     }
 
     async _listen() {
+
+        this.server.ext('onPreHandler', (request, reply) => {
+
+            // Account for serverless-offline issue where multiValueHeaders are not set when using inject()
+
+            request.multiValueHeaders = Object.entries(request.headers)
+                .reduce((collect, [header, value]) => ({
+                    ...collect,
+                    [header]: [].concat(value)
+                }), {});
+
+            return reply.continue();
+        });
 
         await this.server.initialize();
 
