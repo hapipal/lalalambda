@@ -1247,7 +1247,7 @@ describe('Lalalambda', () => {
             expect(output).to.contain('functions:\n  info-lambda: my-service-dev-info-lambda');
         });
 
-        it('interoperates with the offline plugin.', { plan: 2 }, async () => {
+        it('interoperates with the offline plugin.', async () => {
 
             const serverless = Helpers.makeServerless('offline', ['offline', 'start']);
 
