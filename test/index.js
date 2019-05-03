@@ -1187,7 +1187,7 @@ describe('Lalalambda', () => {
 
             await serverless.init();
 
-            await expect(serverless.run()).to.reject(`Cannot find module 'does-not-exist'`);
+            await expect(serverless.run()).to.reject(/Cannot find module 'does-not-exist'/);
         });
 
         it('can locally invoke a lambda registered by hapi.', async () => {
