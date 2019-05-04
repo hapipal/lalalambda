@@ -18,13 +18,14 @@ const Lalalambda = require('..');
 
 // Test shortcuts
 
-const { describe, it, before } = exports.lab = Lab.script();
+const { describe, it, before, afterEach } = exports.lab = Lab.script();
 const { expect } = Code;
 
 describe('Lalalambda', () => {
 
     const rimraf = Util.promisify(Rimraf);
     const symlink = Util.promisify(Fs.symlink);
+    const cwd = process.cwd();
 
     before(async () => {
 
@@ -36,6 +37,9 @@ describe('Lalalambda', () => {
             Bounce.ignore(err, { code: 'EEXIST' });
         }
     });
+
+    // Serverless likes to change the working directory, which screws-up coverage, etc.
+    afterEach(() => process.chdir(cwd));
 
     describe('the hapi plugin', () => {
 
