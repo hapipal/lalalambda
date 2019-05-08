@@ -1,5 +1,5 @@
 # lalalambda
-serverless hapi
+Serverless functions powered by hapijs
 
 [![Build Status](https://travis-ci.org/devinivy/lalalambda.svg?branch=master)](https://travis-ci.org/devinivy/lalalambda) [![Coverage Status](https://coveralls.io/repos/devinivy/lalalambda/badge.svg?branch=master&service=github)](https://coveralls.io/github/devinivy/lalalambda?branch=master)
 
@@ -8,19 +8,17 @@ Lead Maintainer - [Devin Ivy](https://github.com/devinivy)
 ## Usage
 > **Note**
 >
-> Lalalambda is intended for use with hapi v17+ and nodejs v8+.
+> Lalalambda is intended for use with hapi v17+ and nodejs v8+.  Currently only deployments to [AWS Lambda](https://aws.amazon.com/lambda/) are supported, but we are open to [expand](https://github.com/devinivy/lalalambda/issues/1) [support](https://github.com/devinivy/lalalambda/issues/2) with your help!
 >
->Currently only deployments to AWS Lambda are supported, but we are open to [expand](https://github.com/devinivy/lalalambda/issues/1) [support](https://github.com/devinivy/lalalambda/issues/2) with your help!
->
-> You can skip down the page if you're just looking for [installation instructions](#installation).
+> You can skip down the page if you're looking for [installation instructions](#installation).
 
 Lalalambda offers three core features integrating [hapi](https://hapijs.com) with the [Serverless framework](https://github.com/serverless/serverless):
 
-1. The ability to deploy an entire hapi server as a lambda function.
+1. :mount_fuji: The ability to deploy an entire hapi server as a lambda function.
 
-2. The ability to deploy individual hapi routes as lambda functions.
+2. :sunrise_over_mountains: The ability to deploy individual hapi routes as lambda functions.
 
-3. The ability to deploy arbitrary lambda functions triggered by cloud events, authored similarly to how you'd create a standard hapi route.
+3. :sunrise: The ability to deploy arbitrary lambda functions triggered by cloud events, authored similarly to how you'd create a standard hapi route.
 
 Let's take a quick look at a code example for each of these features.
 
@@ -118,7 +116,7 @@ const Hapi = require('@hapi/hapi');
 const Wreck = require('@hapi/wreck');
 const Lalalambda = require('lalalambda');
 
-exports.deployment = async (start) => {
+exports.deployment = async () => {
 
     const server = Hapi.server({
         debug: {

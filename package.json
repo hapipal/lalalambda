@@ -1,7 +1,7 @@
 {
   "name": "lalalambda",
   "version": "0.1.0",
-  "description": "serverless hapi",
+  "description": "Serverless functions powered by hapijs",
   "main": "lib/index.js",
   "directories": {
     "test": "test"
