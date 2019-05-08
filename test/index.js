@@ -476,6 +476,13 @@ describe('Lalalambda', () => {
                                 path: '/a/{b}/c/{proxy+}',
                                 cors: false
                             }
+                        },
+                        {
+                            http: {
+                                method: 'get',
+                                path: '/a/{b}/c',
+                                cors: false
+                            }
                         }
                     ]
                 });
@@ -788,6 +795,12 @@ describe('Lalalambda', () => {
                                 method: 'any',
                                 path: '/{proxy+}'
                             }
+                        },
+                        {
+                            http: {
+                                method: 'any',
+                                path: '/'
+                            }
                         }
                     ]
                 });
@@ -819,6 +832,12 @@ describe('Lalalambda', () => {
                             http: {
                                 method: 'any',
                                 path: '/{proxy+}'
+                            }
+                        },
+                        {
+                            http: {
+                                method: 'any',
+                                path: '/'
                             }
                         }
                     ]
@@ -930,7 +949,7 @@ describe('Lalalambda', () => {
                     path: '/',
                     options: {
                         plugins: {
-                            lalalambda: 'headers'
+                            lalalambda: 'headers-multiple'
                         },
                         handler: ({ headers }) => headers
                     }
@@ -955,6 +974,56 @@ describe('Lalalambda', () => {
                         'x-b': 'test-x',
                         'x-c': ['test-x', 'test-y']
                     });
+
+                }).run();
+            });
+
+            it('handles missing headers.', async (flags) => {
+
+                const serverless = Helpers.makeServerless('offline-canvas', ['offline', 'start']);
+                await serverless.init();
+                const server = await Helpers.getLalalambdaServer(serverless);
+                flags.onCleanup = Helpers.useServer('offline-canvas', server);
+
+                await server.stop();
+
+                server.route({
+                    method: 'get',
+                    path: '/',
+                    options: {
+                        plugins: {
+                            lalalambda: 'headers-missing'
+                        },
+                        handler: ({ headers }) => headers
+                    }
+                });
+
+                await server.initialize();
+
+                const lambda = server.plugins.lalalambda.lambdas.get('headers-missing');
+                const { handler } = lambda;
+                lambda.handler = (evt, ...args) => {
+
+                    evt.multiValueHeaders = null;
+
+                    return handler(evt, ...args);
+                };
+
+                await Helpers.offline(serverless, async (offline) => {
+
+                    const { result } = await offline.server.inject({
+                        method: 'get',
+                        url: '/',
+                        headers: {
+                            ensure: 'i get cleared'
+                        }
+                    });
+
+                    // We can't force hapi to inject without basic headers,
+                    // but we can check that we cleared additional headers
+                    // from the originating request.
+
+                    expect(JSON.parse(result)).to.only.contain(['user-agent', 'host']);
 
                 }).run();
             });
