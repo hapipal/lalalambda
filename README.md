@@ -1,7 +1,7 @@
 # lalalambda
 Serverless functions powered by hapijs
 
-[![Build Status](https://travis-ci.org/devinivy/lalalambda.svg?branch=master)](https://travis-ci.org/devinivy/lalalambda) [![Coverage Status](https://coveralls.io/repos/devinivy/lalalambda/badge.svg?branch=master&service=github)](https://coveralls.io/github/devinivy/lalalambda?branch=master)
+[![Build Status](https://travis-ci.org/hapipal/lalalambda.svg?branch=master)](https://travis-ci.org/hapipal/lalalambda) [![Coverage Status](https://coveralls.io/repos/hapipal/lalalambda/badge.svg?branch=master&service=github)](https://coveralls.io/github/hapipal/lalalambda?branch=master)
 
 Lead Maintainer - [Devin Ivy](https://github.com/devinivy)
 
@@ -10,7 +10,7 @@ Lead Maintainer - [Devin Ivy](https://github.com/devinivy)
 >
 > **Note**
 >
-> Lalalambda is intended for use with hapi v17+ and nodejs v8+.  Currently only deployments to [AWS Lambda](https://aws.amazon.com/lambda/) are supported, but we are open to [expand](https://github.com/devinivy/lalalambda/issues/1) [support](https://github.com/devinivy/lalalambda/issues/2) with your help!
+> Lalalambda is intended for use with hapi v17+ and nodejs v8+.  Currently only deployments to [AWS Lambda](https://aws.amazon.com/lambda/) are supported, but we are open to [expand](https://github.com/hapipal/lalalambda/issues/1) [support](https://github.com/hapipal/lalalambda/issues/2) with your help!
 >
 > You can skip down the page if you're looking for [installation instructions](#installation).
 

@@ -12,15 +12,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/devinivy/lalalambda.git"
+    "url": "git+https://github.com/hapipal/lalalambda.git"
   },
   "keywords": [],
   "author": "Devin Ivy <devin@bigroomstudios.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/devinivy/lalalambda/issues"
+    "url": "https://github.com/hapipal/lalalambda/issues"
   },
-  "homepage": "https://github.com/devinivy/lalalambda#readme",
+  "homepage": "https://github.com/hapipal/lalalambda#readme",
   "dependencies": {
     "@hapi/hoek": "6.x.x",
     "@hapi/joi": "15.x.x",

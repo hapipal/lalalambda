@@ -1,7 +1,7 @@
 # API
 Lalalambda is one package that doubles as 1. a hapi plugin and 2. a [Serverless framework](https://github.com/serverless/serverless) plugin.  These two plugins work together to allow you to define lambda functions in hapi that can be packaged and deployed using the Serverless framework to [AWS Lambda](https://aws.amazon.com/lambda/).
 
-> We are open to [expand](https://github.com/devinivy/lalalambda/issues/1) [support](https://github.com/devinivy/lalalambda/issues/2) for providers other than AWS with your help!
+> We are open to [expand](https://github.com/hapipal/lalalambda/issues/1) [support](https://github.com/hapipal/lalalambda/issues/2) for providers other than AWS with your help!
 
 ## The hapi plugin
 The hapi plugin is responsible for the interface to,
