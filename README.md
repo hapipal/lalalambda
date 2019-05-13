@@ -33,7 +33,6 @@ Let's take a quick look at a code example for each of these features.
 
 const Hapi = require('@hapi/hapi');
 const Lalalambda = require('lalalambda');
-const Package = require('./package.json');
 
 exports.deployment = async () => {
 
@@ -42,7 +41,7 @@ exports.deployment = async () => {
     await server.register({
         plugin: Lalalambda,
         options: {
-            lambdaify: Package.name // Just provide a name for the lambda
+            lambdaify: true // Creates a lambda named "server" by default
         }
     });
 
