@@ -6,6 +6,8 @@ Serverless functions powered by hapijs
 Lead Maintainer - [Devin Ivy](https://github.com/devinivy)
 
 ## Usage
+> See also the [API Reference](API.md)
+>
 > **Note**
 >
 > Lalalambda is intended for use with hapi v17+ and nodejs v8+.  Currently only deployments to [AWS Lambda](https://aws.amazon.com/lambda/) are supported, but we are open to [expand](https://github.com/devinivy/lalalambda/issues/1) [support](https://github.com/devinivy/lalalambda/issues/2) with your help!
@@ -161,7 +163,7 @@ npx serverless logs --tail --function earthquakes
 
 
 ### Installation
-Lalalambda is one package that doubles as 1. a hapi plugin and 2. a [Serverless framework](https://github.com/serverless/serverless) plugin.  These two plugins work together to allow you to define lambda functions in hapi that can be packaged and deployed using the Serverless framework to AWS.  A basic installation has just a few steps.
+Lalalambda is one package that doubles as 1. a hapi plugin and 2. a [Serverless framework](https://github.com/serverless/serverless) plugin.  These two plugins work together to allow you to define lambda functions in hapi that can be packaged and deployed using the Serverless framework to AWS Lambda.  A basic installation has just a few steps.
 
 1. Install the lalalambda and serverless packages from npm.
 
