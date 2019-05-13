@@ -142,7 +142,7 @@ describe('Lalalambda', () => {
             expect(() => server.lambda({ id: 'x', handler: () => null })).to.throw('Lambda "x" has already been registered.');
         });
 
-        describe('lambdaizes routes', () => {
+        describe('lambdaifies routes', () => {
 
             it('only when the route is configured.', async () => {
 
@@ -748,7 +748,7 @@ describe('Lalalambda', () => {
             });
         });
 
-        describe('lambdaize plugin option', () => {
+        describe('lambdaify plugin option', () => {
 
             it('cannot be used more than once.', async () => {
 
@@ -771,7 +771,7 @@ describe('Lalalambda', () => {
                     });
                 };
 
-                await expect(registerTwice()).to.reject(`Lalalambda's lambdaify option can only be specified once.`);
+                await expect(registerTwice()).to.reject(`Lalalambda's lambdaify registration option can only be specified once.`);
             });
 
             it('can be configured using a lambda id.', async () => {
@@ -883,22 +883,36 @@ describe('Lalalambda', () => {
                 });
             });
 
-            it('cannot be configured without an id.', async () => {
+            it('defaults to { id: \'server\' } when set to true.', async () => {
 
-                const register = async (config) => {
+                const server = Hapi.server();
 
-                    const server = Hapi.server();
+                await server.register({
+                    plugin: Lalalambda,
+                    options: {
+                        lambdaify: true
+                    }
+                });
 
-                    await server.register({
-                        plugin: Lalalambda,
-                        options: {
-                            lambdaify: config
+                const lambda = server.plugins.lalalambda.lambdas.get('server');
+
+                expect(lambda.id).to.equal('server');
+                expect(lambda.settings).to.equal({
+                    events: [
+                        {
+                            http: {
+                                method: 'any',
+                                path: '/{proxy+}'
+                            }
+                        },
+                        {
+                            http: {
+                                method: 'any',
+                                path: '/'
+                            }
                         }
-                    });
-                };
-
-                await expect(register(true)).to.reject(`Lalalambda's lambdaize registration option must be configured with an id.`);
-                await expect(register({})).to.reject(`Lalalambda's lambdaize registration option must be configured with an id.`);
+                    ]
+                });
             });
         });
 
