@@ -1,6 +1,6 @@
 {
   "name": "lalalambda",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Serverless functions powered by hapijs",
   "main": "lib/index.js",
   "directories": {
