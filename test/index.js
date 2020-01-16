@@ -8,12 +8,11 @@ const Util = require('util');
 const Zlib = require('zlib');
 const Lab = require('@hapi/lab');
 const Code = require('@hapi/code');
-const Hapi = require('@hapi/hapi');
 const Bounce = require('@hapi/bounce');
 const Toys = require('toys');
 const Rimraf = require('rimraf');
 const StreamZip = require('node-stream-zip');
-const Helpers = require('./helpers');
+const { Hapi, ...Helpers } = require('./helpers');
 const Lalalambda = require('..');
 
 // Test shortcuts
@@ -1178,7 +1177,7 @@ describe('Lalalambda', () => {
 
             const serverless = Helpers.makeServerless('bad-provider', []);
 
-            await expect(serverless.init()).to.reject('Serverless plugin "lalalambda" initialization errored: Lalalambda requires using the serverless AWS provider.');
+            await expect(serverless.init()).to.reject(/Lalalambda requires using the serverless AWS provider\./);
         });
 
         it('requires the nodejs runtime (incorrect).', async () => {
@@ -1304,7 +1303,7 @@ describe('Lalalambda', () => {
             expect(result.ctx).to.contain({ functionName: 'my-service-dev-invoke-context-lambda' });
         });
 
-        it('can provide info on lambdas registered by hapi.', async (flags) => {
+        it('can provide info on lambdas registered by hapi.', { timeout: 10000 }, async (flags) => {
 
             const serverless = Helpers.makeServerless('info', ['info']);
 
@@ -1313,8 +1312,16 @@ describe('Lalalambda', () => {
             const provider = serverless.getProvider('aws');
 
             const { request } = provider;
+            const { AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY } = process.env;
 
-            flags.onCleanup = () => Object.assign(provider, { request });
+            process.env.AWS_ACCESS_KEY_ID = 'x';
+            process.env.AWS_SECRET_ACCESS_KEY = 'x';
+
+            flags.onCleanup = () => {
+
+                Object.assign(provider, { request });
+                Object.assign(process.env, { AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY });
+            };
 
             provider.request = async (service, method, ...args) => {
 

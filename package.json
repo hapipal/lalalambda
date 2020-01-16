@@ -7,7 +7,7 @@
     "test": "test"
   },
   "scripts": {
-    "test": "lab -a @hapi/code -t 100 -L test/index.js",
+    "test": "lab -a @hapi/code -t 100 -I 'regeneratorRuntime,fetch,Response,Headers,Request' -L test/index.js",
     "coveralls": "lab -r lcov test/index.js | coveralls"
   },
   "repository": {
@@ -22,19 +22,20 @@
   },
   "homepage": "https://github.com/hapipal/lalalambda#readme",
   "dependencies": {
-    "@hapi/hoek": "6.x.x",
+    "@hapi/hoek": "8.x.x",
     "@hapi/joi": "15.x.x",
     "@hapi/somever": "2.x.x",
     "rimraf": "2.x.x"
   },
   "peerDependencies": {
-    "@hapi/hapi": ">=17 <19"
+    "@hapi/hapi": ">=17 <20"
   },
   "devDependencies": {
     "@hapi/bounce": "1.x.x",
-    "@hapi/code": "5.x.x",
+    "@hapi/code": "6.x.x",
     "@hapi/hapi": "18.x.x",
-    "@hapi/lab": "18.x.x",
+    "@hapi/hapi-19": "npm:@hapi/hapi@19",
+    "@hapi/lab": "20.x.x",
     "coveralls": "3.x.x",
     "node-stream-zip": "1.x.x",
     "serverless": "1.x.x",

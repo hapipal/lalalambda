@@ -1,6 +1,6 @@
 'use strict';
 
-const Hapi = require('@hapi/hapi');
+const { Hapi } = require('../../helpers');
 const Lalalambda = require('../../..');
 
 exports.typo = async () => {

@@ -4,6 +4,9 @@ const Path = require('path');
 const StripAnsi = require('strip-ansi');
 const Serverless = require('serverless');
 const Offline = require('serverless-offline');
+const Somever = require('@hapi/somever');
+
+exports.Hapi = Somever.match(process.version, '>=12') ? require('@hapi/hapi-19') : require('@hapi/hapi');
 
 exports.makeServerless = (servicePath, argv) => {
 
@@ -36,6 +39,10 @@ exports.makeServerless = (servicePath, argv) => {
     const { run } = serverless;
 
     serverless.run = async () => {
+
+        // Make non-interactive, e.g. setup AWS creds
+        serverless.processedInput.commands = serverless.processedInput.commands
+            .filter((c) => c !== 'interactiveCli');
 
         await run.call(serverless);
 
