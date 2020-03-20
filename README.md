@@ -179,7 +179,7 @@ Lalalambda is one package that doubles as 1. a hapi plugin and 2. a [Serverless 
 
    provider:
      name: aws
-     runtime: nodejs8.10
+     runtime: nodejs12.x
 
    plugins:
      - lalalambda

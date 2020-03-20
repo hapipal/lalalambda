@@ -9,4 +9,4 @@ plugins:
 
 functions:
   runtime-per-lambda-lambda:
-    runtime: nodejs8.10
+    runtime: nodejs12.x

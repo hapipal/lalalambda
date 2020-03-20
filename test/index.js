@@ -1227,7 +1227,6 @@ describe('Lalalambda', () => {
             const config2 = serverless.service.getFunction('config-merge-lambda-two');
 
             expect(config1).to.equal({
-                runtime: 'nodejs10.15',
                 include: ['include.js'],
                 exclude: ['exclude.js'],
                 events: [{ http: { method: 'get', path: '/one' } }],
@@ -1410,7 +1409,7 @@ describe('Lalalambda', () => {
             expect(lambdaTemplate.Properties).to.contain({
                 FunctionName: 'my-service-dev-package-lambda',
                 Handler: '_lalalambda/package-lambda.handler',
-                Runtime: 'nodejs8.10'
+                Runtime: 'nodejs12.x'
             });
         });
     });

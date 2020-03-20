@@ -2,6 +2,7 @@ service: my-service
 
 provider:
   name: aws
+  # Maintained to test mixed lambda versions and ensure lower bound of range is valid
   runtime: nodejs8.10
 
 plugins:
@@ -9,7 +10,7 @@ plugins:
 
 functions:
   config-merge-lambda-two:
-    runtime: nodejs8.10
+    runtime: nodejs12.x
     include:
       - also-include.js
     exclude:

@@ -92,7 +92,7 @@ server.lambda({
 ```
 
 ## The Serverless plugin
-Lalalambda takes no options when used as a Serverless plugin.  Currently the plugin only supports the [`aws` Serverless provider](https://serverless.com/framework/docs/providers/aws/), and each function deployed via lalalambda must use the `nodejs8.10` runtime or newer.  The plugin is responsible for:
+Lalalambda takes no options when used as a Serverless plugin.  Currently the plugin only supports the [`aws` Serverless provider](https://serverless.com/framework/docs/providers/aws/), and each function deployed via lalalambda must use the `nodejs8.10` runtime or newer (`nodejs12.x` is recommended).  The plugin is responsible for:
 
 1. Configuring the project's Serverless service based upon relevant lambda and route configurations made within hapi.
 
@@ -108,7 +108,7 @@ service: my-service
 
 provider:
   name: aws
-  runtime: nodejs8.10
+  runtime: nodejs12.x
 
 plugins:
   - lalalambda
