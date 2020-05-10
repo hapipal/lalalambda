@@ -95,11 +95,14 @@ exports.OfflineMock = class OfflineMock extends Offline {
         this.options.skipCacheInvalidation = true;
 
         this.serverlessLog = (...logs) => this.serverless.cli.log(...logs);
+        this.printBlankLine = () => this.serverlessLog();
     }
 
-    async _listen() {
+    _buildServer() {
 
-        this.server.ext('onPreHandler', (request, reply) => {
+        const server = super._buildServer();
+
+        server.ext('onPreHandler', (request, h) => {
 
             // Account for serverless-offline issue where multiValueHeaders are not set when using inject()
 
@@ -109,12 +112,15 @@ exports.OfflineMock = class OfflineMock extends Offline {
                     [header]: [].concat(value)
                 }), {});
 
-            return reply.continue();
+            return h.continue;
         });
 
-        await this.server.initialize();
+        this.apiGateway.printBlankLine = () => this.printBlankLine();
+        this.apiGateway._listen = async () => await server.initialize();
 
-        return this.server;
+        this.server = server;
+
+        return server;
     }
 
     async end() {

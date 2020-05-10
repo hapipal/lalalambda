@@ -39,7 +39,7 @@
     "coveralls": "3.x.x",
     "node-stream-zip": "1.x.x",
     "serverless": "1.x.x",
-    "serverless-offline": "4.x.x",
+    "serverless-offline": "5.x.x",
     "strip-ansi": "5.x.x",
     "toys": "2.x.x"
   }
