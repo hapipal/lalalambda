@@ -185,6 +185,16 @@ Lalalambda is one package that doubles as 1. a hapi plugin and 2. a [Serverless 
      - lalalambda
    ```
 
+    There is also an optional configuration for declaring the path to the server file.
+
+   ```yaml
+   # serverless.yml
+
+   custom:
+     lalalambda:
+       serverPath: 'src/my-server.js'  # This is always relative to the serverless.yml file.
+   ```
+
 3. Register lalalambda to your hapi server.
 
    > If you're using [the pal boilerplate](https://github.com/hapipal/boilerplate) then simply add lalalambda to your [manifest's](https://github.com/hapipal/boilerplate/blob/pal/server/manifest.js) `plugins` section.
