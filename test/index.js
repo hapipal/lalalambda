@@ -14,6 +14,7 @@ const Rimraf = require('rimraf');
 const StreamZip = require('node-stream-zip');
 const { Hapi, ...Helpers } = require('./helpers');
 const Lalalambda = require('..');
+const { server } = require('@hapi/hapi');
 
 // Test shortcuts
 
@@ -1255,6 +1256,24 @@ describe('Lalalambda', () => {
             await serverless.init();
 
             await expect(serverless.run()).to.reject(`No server found! The current project must export { deployment: async () => server } from ${Path.join(__dirname, '/closet/missing-server-file/server.')}`);
+        });
+
+        it('can load the server file with file extension from a custom path', async () => {
+
+            const serverless = Helpers.makeServerless('server-file-location-with-file-extension', []);
+
+            await serverless.init();
+
+            await expect(serverless.run()).to.not.reject();
+        });
+
+        it('can load the server file without file extension from a custom path', async () => {
+
+            const serverless = Helpers.makeServerless('server-file-location-without-file-extension', []);
+
+            await serverless.init();
+
+            await expect(serverless.run()).to.not.reject();
         });
 
         it('fails when deployment does not exist.', async () => {
