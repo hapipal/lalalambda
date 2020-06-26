@@ -1248,6 +1248,15 @@ describe('Lalalambda', () => {
             });
         });
 
+        it('fails when server file does not exist', async () => {
+
+            const serverless = Helpers.makeServerless('missing-server-file', []);
+
+            await serverless.init();
+
+            await expect(serverless.run()).to.reject(`No server found! The current project must export { deployment: async () => server } from ${Path.join(__dirname, '/closet/missing-server-file/server.')}`);
+        });
+
         it('fails when deployment does not exist.', async () => {
 
             const serverless = Helpers.makeServerless('bad-deployment-missing', []);

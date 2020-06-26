@@ -1,0 +1,9 @@
+service: my-service
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+
+plugins:
+  - lalalambda
+  - serverless-offline-mock
