@@ -14,7 +14,7 @@ const Rimraf = require('rimraf');
 const StreamZip = require('node-stream-zip');
 const { Hapi, ...Helpers } = require('./helpers');
 const Lalalambda = require('..');
-const { server } = require('@hapi/hapi');
+// const { server } = require('@hapi/hapi');
 
 // Test shortcuts
 
