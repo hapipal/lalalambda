@@ -92,13 +92,13 @@ server.lambda({
 ```
 
 ## The Serverless plugin
-Lalalambda takes no options when used as a Serverless plugin.  Currently the plugin only supports the [`aws` Serverless provider](https://serverless.com/framework/docs/providers/aws/), and each function deployed via lalalambda must use the `nodejs8.10` runtime or newer (`nodejs12.x` is recommended).  The plugin is responsible for:
+Currently the plugin only supports the [`aws` Serverless provider](https://serverless.com/framework/docs/providers/aws/), and each function deployed via lalalambda must use the `nodejs8.10` runtime or newer (`nodejs12.x` is recommended).  The plugin is responsible for:
 
 1. Configuring the project's Serverless service based upon relevant lambda and route configurations made within hapi.
 
 2. Writing lambda handler files during packaging, deployment, local invocation, etc., and later cleaning them up.  These files will be written in your project root's `_lalalambda/` directory.
 
-In order to interoperate with your hapi server, it is expected that `server.js` or `server/index.js` export an async function named `deployment` returning your configured hapi server.  This server should have the [lalalambda hapi plugin](#the-hapi-plugin) registered.
+In order to interoperate with your hapi server, it is expected that `server.js` or `server/index.js` export an async function named `deployment` returning your configured hapi server.  This server should have the [lalalambda hapi plugin](#the-hapi-plugin) registered.  The path to `server.js` can also be customized through the `custom.lalalambda` config section as shown below.
 
 A minimal Serverless [config](https://serverless.com/framework/docs/providers/aws/guide/serverless.yml/) utilizing lalalambda will look like this:
 
@@ -109,6 +109,11 @@ service: my-service
 provider:
   name: aws
   runtime: nodejs12.x
+
+# optional
+custom:
+  lalalambda:
+    serverPath: some/relative/path/to/server.js
 
 plugins:
   - lalalambda
