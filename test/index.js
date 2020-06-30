@@ -1313,6 +1313,17 @@ describe('Lalalambda', () => {
             expect(output).to.contain(`"success": "invoked"`);
         });
 
+        it('can locally invoke a lambda registered by hapi to a custom serverpath.', async () => {
+
+            const serverless = Helpers.makeServerless('invoke-custom-server-path', ['invoke', 'local', '--function', 'invoke-lambda']);
+
+            await serverless.init();
+
+            const output = await serverless.run();
+
+            expect(output).to.contain(`"success": "invoked"`);
+        });
+
         it('invokes lambdas registered by hapi with server and bound context.', async () => {
 
             const serverless = Helpers.makeServerless('invoke-context', ['invoke', 'local', '--function', 'invoke-context-lambda', '--data', '{"an":"occurrence"}']);
@@ -1423,7 +1434,7 @@ describe('Lalalambda', () => {
                 const Path = require('path');
                 const Lalalambda = require('lalalambda');
 
-                exports.handler = Lalalambda.handler('package-lambda', Path.resolve(__dirname, '..'));
+                exports.handler = Lalalambda.handler('package-lambda', Path.resolve(__dirname, '..', ''));
             `));
 
             const cfFile = await readFile(Path.join(__dirname, 'closet', 'package', '.serverless', 'cloudformation-template-update-stack.json'));
