@@ -1248,6 +1248,33 @@ describe('Lalalambda', () => {
             });
         });
 
+        it('fails when server file does not exist', async () => {
+
+            const serverless = Helpers.makeServerless('missing-server-file', []);
+
+            await serverless.init();
+
+            await expect(serverless.run()).to.reject(`No server found! The current project must export { deployment: async () => server } from ${Path.join(__dirname, '/closet/missing-server-file/server.')}`);
+        });
+
+        it('can load the server file with file extension from a custom path', async () => {
+
+            const serverless = Helpers.makeServerless('server-file-location-with-file-extension', []);
+
+            await serverless.init();
+
+            await expect(serverless.run()).to.not.reject();
+        });
+
+        it('can load the server file without file extension from a custom path', async () => {
+
+            const serverless = Helpers.makeServerless('server-file-location-without-file-extension', []);
+
+            await serverless.init();
+
+            await expect(serverless.run()).to.not.reject();
+        });
+
         it('fails when deployment does not exist.', async () => {
 
             const serverless = Helpers.makeServerless('bad-deployment-missing', []);
@@ -1278,6 +1305,28 @@ describe('Lalalambda', () => {
         it('can locally invoke a lambda registered by hapi.', async () => {
 
             const serverless = Helpers.makeServerless('invoke', ['invoke', 'local', '--function', 'invoke-lambda']);
+
+            await serverless.init();
+
+            const output = await serverless.run();
+
+            expect(output).to.contain(`"success": "invoked"`);
+        });
+
+        it('can locally invoke a lambda registered by hapi to a custom serverPath.', async () => {
+
+            const serverless = Helpers.makeServerless('invoke-custom-server-path', ['invoke', 'local', '--function', 'invoke-lambda']);
+
+            await serverless.init();
+
+            const output = await serverless.run();
+
+            expect(output).to.contain(`"success": "invoked"`);
+        });
+
+        it('can locally invoke a lambda registered by hapi to a custom serverPath containing a single quote.', async () => {
+
+            const serverless = Helpers.makeServerless('invoke-custom-server-path-escaped', ['invoke', 'local', '--function', 'invoke-lambda']);
 
             await serverless.init();
 
@@ -1396,7 +1445,7 @@ describe('Lalalambda', () => {
                 const Path = require('path');
                 const Lalalambda = require('lalalambda');
 
-                exports.handler = Lalalambda.handler('package-lambda', Path.resolve(__dirname, '..'));
+                exports.handler = Lalalambda.handler('package-lambda', Path.resolve(__dirname, '../server'));
             `));
 
             const cfFile = await readFile(Path.join(__dirname, 'closet', 'package', '.serverless', 'cloudformation-template-update-stack.json'));
