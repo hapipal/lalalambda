@@ -3,10 +3,11 @@
 const Path = require('path');
 const StripAnsi = require('strip-ansi');
 const Serverless = require('serverless');
+const ServerlessConfigFile = require('serverless/lib/utils/getServerlessConfigFile');
 const Offline = require('serverless-offline');
 const Somever = require('@hapi/somever');
 
-exports.Hapi = Somever.match(process.version, '>=12') ? require('@hapi/hapi-19') : require('@hapi/hapi');
+exports.Hapi = Somever.match(process.version, '>=12') ? require('@hapi/hapi-20') : require('@hapi/hapi');
 
 exports.makeServerless = (servicePath, argv) => {
 
@@ -44,7 +45,16 @@ exports.makeServerless = (servicePath, argv) => {
         serverless.processedInput.commands = serverless.processedInput.commands
             .filter((c) => c !== 'interactiveCli');
 
-        await run.call(serverless);
+        try {
+            await run.call(serverless);
+        }
+        finally {
+            // Something between serverless 1.77.1 and 1.78.0 made this cache clear necessary.
+            // When reusing closet/offline-canvas the parsed serverless.yaml object is being
+            // reused each time, which caused lambda functions from earlier tests to show-up
+            // in later tests (serverless.config.functions).  Super odd!
+            ServerlessConfigFile.getServerlessConfigFile.cache.clear();
+        }
 
         return StripAnsi(serverless.cli.output);
     };
