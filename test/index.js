@@ -248,7 +248,7 @@ describe('Lalalambda', () => {
                             lalalambda: {
                                 id: 'y',
                                 options: {
-                                    runtime: 'nodejs10.15'
+                                    runtime: 'nodejs12.x'
                                 }
                             }
                         },
@@ -262,7 +262,7 @@ describe('Lalalambda', () => {
 
                 expect(lambda.id).to.equal('y');
                 expect(lambda.settings).to.equal({
-                    runtime: 'nodejs10.15',
+                    runtime: 'nodejs12.x',
                     events: [
                         {
                             http: {
@@ -815,7 +815,7 @@ describe('Lalalambda', () => {
                         lambdaify: {
                             id: 'x',
                             options: {
-                                runtime: 'nodejs10.15'
+                                runtime: 'nodejs12.x'
                             }
                         }
                     }
@@ -825,7 +825,7 @@ describe('Lalalambda', () => {
 
                 expect(lambda.id).to.equal('x');
                 expect(lambda.settings).to.equal({
-                    runtime: 'nodejs10.15',
+                    runtime: 'nodejs12.x',
                     events: [
                         {
                             http: {
@@ -1198,13 +1198,13 @@ describe('Lalalambda', () => {
             await expect(serverless.run()).to.reject('Lambda "bad-runtime-missing-lambda" must be configured with a nodejs runtime.');
         });
 
-        it('requires the nodejs runtime >=8.10.', async () => {
+        it('requires the nodejs runtime >=12.', async () => {
 
             const serverless = Helpers.makeServerless('bad-runtime-version', []);
 
             await serverless.init();
 
-            await expect(serverless.run()).to.reject('Lambda "bad-runtime-version-lambda" must be configured with a nodejs runtime >=8.10.');
+            await expect(serverless.run()).to.reject('Lambda "bad-runtime-version-lambda" must be configured with a nodejs runtime >=12.');
         });
 
         it('checks per-lambda nodejs runtime.', async () => {
@@ -1235,7 +1235,7 @@ describe('Lalalambda', () => {
             });
 
             expect(config2).to.equal({
-                runtime: 'nodejs10.15',
+                runtime: 'nodejs12.x',
                 include: ['also-include.js', 'include.js'],
                 exclude: ['also-exclude.js', 'exclude.js'],
                 events: [

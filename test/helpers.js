@@ -5,9 +5,8 @@ const StripAnsi = require('strip-ansi');
 const Serverless = require('serverless');
 const ServerlessConfigFile = require('serverless/lib/utils/getServerlessConfigFile');
 const Offline = require('serverless-offline');
-const Somever = require('@hapi/somever');
 
-exports.Hapi = Somever.match(process.version, '>=12') ? require('@hapi/hapi-20') : require('@hapi/hapi');
+exports.Hapi = require('@hapi/hapi');
 
 exports.makeServerless = (servicePath, argv) => {
 
