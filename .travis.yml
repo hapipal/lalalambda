@@ -14,3 +14,8 @@ install:
   - "npm install @hapi/hapi@$HAPI_VERSION"
 
 after_script: "npm run coveralls"
+
+jobs:
+  fast_finish: true
+  allow_failures:
+    - node_js: "node"
