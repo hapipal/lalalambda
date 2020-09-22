@@ -2,6 +2,7 @@ service: my-service
 
 provider:
   name: aws
+  # Maintained to test mixed lambda versions and ensure lower bound of range is valid
   runtime: nodejs12.x
 
 plugins:
