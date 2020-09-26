@@ -1,21 +1,5 @@
-language: node_js
+version: ~> 1.0
 
-env:
-  - HAPI_VERSION="19"
-  - HAPI_VERSION="20"
-
-node_js:
-  - "12"
-  - "14"
-  - "node"
-
-install:
-  - "npm install"
-  - "npm install @hapi/hapi@$HAPI_VERSION"
-
-after_script: "npm run coveralls"
-
-jobs:
-  fast_finish: true
-  allow_failures:
-    - node_js: "node"
+import:
+  - hapipal/ci-config-travis:node_js.yml@master
+  - hapipal/ci-config-travis:hapi_all.yml@master
