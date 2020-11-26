@@ -30,25 +30,24 @@
   },
   "homepage": "https://github.com/hapipal/lalalambda#readme",
   "dependencies": {
-    "@hapi/hoek": "8.x.x",
+    "@hapi/hoek": "9.x.x",
     "@hapi/joi": "16.x.x",
-    "@hapi/somever": "2.x.x",
-    "rimraf": "2.x.x"
+    "@hapi/somever": "3.x.x",
+    "rimraf": "3.x.x"
   },
   "peerDependencies": {
-    "@hapi/hapi": ">=17 <21"
+    "@hapi/hapi": ">=19 <21"
   },
   "devDependencies": {
-    "@hapi/bounce": "1.x.x",
-    "@hapi/code": "6.x.x",
-    "@hapi/hapi": "18.x.x",
-    "@hapi/hapi-20": "npm:@hapi/hapi@20",
-    "@hapi/lab": "20.x.x",
+    "@hapi/bounce": "2.x.x",
+    "@hapi/code": "8.x.x",
+    "@hapi/hapi": "20.x.x",
+    "@hapi/lab": "23.x.x",
     "coveralls": "3.x.x",
     "node-stream-zip": "1.x.x",
     "serverless": "1.x.x",
     "serverless-offline": "5.x.x",
-    "strip-ansi": "5.x.x",
+    "strip-ansi": "6.x.x",
     "toys": "2.x.x"
   }
 }

@@ -1,10 +1,5 @@
-language: node_js
+version: ~> 1.0
 
-node_js:
-  - "8"
-  - "10"
-  - "12"
-  - "14"
-  - "node"
-
-after_script: "npm run coveralls"
+import:
+  - hapipal/ci-config-travis:node_js.yml@master
+  - hapipal/ci-config-travis:hapi_all.yml@master
