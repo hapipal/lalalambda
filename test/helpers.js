@@ -52,7 +52,7 @@ exports.makeServerless = (servicePath, argv) => {
             // When reusing closet/offline-canvas the parsed serverless.yaml object is being
             // reused each time, which caused lambda functions from earlier tests to show-up
             // in later tests (serverless.config.functions).  Super odd!
-            ServerlessConfigFile.getServerlessConfigFile.cache.clear();
+            ServerlessConfigFile.getServerlessConfigFile.clear();
         }
 
         return StripAnsi(serverless.cli.output);
@@ -66,7 +66,7 @@ exports.offline = (serverless, withOffline) => {
     const offline = serverless.pluginManager.plugins
         .find((p) => p.constructor.name === 'OfflineMock');
 
-    offline._listenForTermination = async () => await withOffline(offline);
+    offline.ready = async () => await withOffline(offline);
 
     return serverless;
 };
@@ -96,49 +96,53 @@ exports.useServer = (servicePath, server) => {
 
 exports.OfflineMock = class OfflineMock extends Offline {
 
-    constructor(...args) {
+    constructor(sls, opts) {
 
-        super(...args);
+        super(sls, { ...opts, noPrependStageInUrl: true });
 
-        // Allows useServer() helper to work
-        this.options.skipCacheInvalidation = true;
-
-        this.serverlessLog = (...logs) => this.serverless.cli.log(...logs);
-        this.printBlankLine = () => this.serverlessLog();
+        // Make this hook lazy so that we can override ready() inside offline() helper
+        this.hooks['offline:start:ready'] = () => this.ready();
     }
 
-    _buildServer() {
+    get server() {
 
-        const server = super._buildServer();
+        return super.getApiGatewayServer();
+    }
 
-        server.ext('onPreHandler', (request, h) => {
+    async _createHttp(events) {
+
+        // Silence logging of route summary
+        const { log: origLog } = console;
+        Object.assign(console, { log: () => null });
+
+        try {
+            await super._createHttp(events, true);
+        }
+        finally {
+            Object.assign(console, { log: origLog });
+        }
+
+        this.server.ext('onPreHandler', (request, h) => {
 
             // Account for serverless-offline issue where multiValueHeaders are not set when using inject()
 
-            request.multiValueHeaders = Object.entries(request.headers)
-                .reduce((collect, [header, value]) => ({
-                    ...collect,
-                    [header]: [].concat(value)
-                }), {});
+            request.raw.req.rawHeaders = Object.entries(request.headers)
+                .flatMap(([key, vals]) => {
+
+                    return [].concat(vals).flatMap((val) => [key, val]);
+                });
 
             return h.continue;
         });
+    }
 
-        this.apiGateway.printBlankLine = () => this.printBlankLine();
-        this.apiGateway._listen = async () => await server.initialize();
+    async _createLambda(lambdas) {
 
-        this.server = server;
-
-        return server;
+        await super._createLambda(lambdas, true);
     }
 
     async end() {
 
-        return await this.server.stop();
-    }
-
-    printBlankLine() {
-
-        this.serverlessLog();
+        await super.end(true);
     }
 };

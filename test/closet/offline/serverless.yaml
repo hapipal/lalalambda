@@ -3,6 +3,8 @@ service: my-service
 provider:
   name: aws
   runtime: nodejs12.x
+  apiGateway:
+    shouldStartNameWithService: true
 
 plugins:
   - lalalambda
