@@ -9,5 +9,5 @@ custom:
     serverPath: 'src/server'
 
 plugins:
-  - lalalambda
+  - '@hapipal/lalalambda'
   - serverless-offline-mock

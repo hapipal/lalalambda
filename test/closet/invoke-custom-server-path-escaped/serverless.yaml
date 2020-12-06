@@ -9,4 +9,4 @@ custom:
     serverPath: "'.js"
 
 plugins:
-  - lalalambda
+  - '@hapipal/lalalambda'

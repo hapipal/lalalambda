@@ -5,4 +5,4 @@ provider:
   runtime: nodejs12.x
 
 plugins:
-  - lalalambda
+  - '@hapipal/lalalambda'

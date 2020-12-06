@@ -185,10 +185,10 @@ Lalalambda is one package that doubles as 1. a hapi plugin and 2. a [Serverless 
      runtime: nodejs12.x
 
    plugins:
-     - @hapipal/lalalambda
+     - '@hapipal/lalalambda'
    ```
 
-    There is also an optional configuration for declaring the path to the server file.
+   There is also an optional configuration for declaring the path to the server file.
 
    ```yaml
    # serverless.yml

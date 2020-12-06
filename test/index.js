@@ -30,7 +30,7 @@ describe('Lalalambda', () => {
 
         try {
             // Necessary so that handler() can require lalalambda
-            await symlink('..', Path.resolve(__dirname, '..', 'node_modules/lalalambda'));
+            await symlink('../..', Path.resolve(__dirname, '..', 'node_modules/@hapipal/lalalambda'));
         }
         catch (err) {
             Bounce.ignore(err, { code: 'EEXIST' });
@@ -1451,7 +1451,7 @@ describe('Lalalambda', () => {
                 'use strict';
 
                 const Path = require('path');
-                const Lalalambda = require('lalalambda');
+                const Lalalambda = require('@hapipal/lalalambda');
 
                 exports.handler = Lalalambda.handler('package-lambda', Path.resolve(__dirname, '../server'));
             `));

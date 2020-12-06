@@ -5,4 +5,4 @@ provider:
   runtime: nodejs8.9
 
 plugins:
-  - lalalambda
+  - '@hapipal/lalalambda'

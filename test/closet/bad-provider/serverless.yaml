@@ -4,4 +4,4 @@ provider:
   name: azure
 
 plugins:
-  - lalalambda
+  - '@hapipal/lalalambda'

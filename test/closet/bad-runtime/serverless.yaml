@@ -5,4 +5,4 @@ provider:
   runtime: python3.6
 
 plugins:
-  - lalalambda
+  - '@hapipal/lalalambda'

@@ -115,11 +115,11 @@ provider:
   name: aws
   runtime: nodejs12.x
 
+plugins:
+  - '@hapipal/lalalambda'
+
 # optional
 custom:
   lalalambda:
     serverPath: some/relative/path/to/server.js
-
-plugins:
-  - @hapipal/lalalambda
 ```

@@ -7,5 +7,5 @@ provider:
     shouldStartNameWithService: true
 
 plugins:
-  - lalalambda
+  - '@hapipal/lalalambda'
   - serverless-offline-mock
