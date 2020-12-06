@@ -10,3 +10,6 @@ env:
 install:
   - "npm install"
   - "npm install @hapi/hapi@$HAPI_VERSION serverless@$SERVERLESS_VERSION"
+
+cache:
+  npm: false
