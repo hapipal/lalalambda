@@ -1353,7 +1353,7 @@ describe('Lalalambda', () => {
             const result = JSON.parse(output);
 
             expect(result).to.only.contain(['plugins', 'bind', 'event', 'ctx']);
-            expect(result.plugins).to.equal(['lalalambda']);
+            expect(result.plugins).to.equal(['@hapipal/lalalambda']);
             expect(result.bind).to.equal({ some: 'data' });
             expect(result.event).to.equal({ an: 'occurrence' });
             expect(result.ctx).to.contain({ functionName: 'my-service-dev-invoke-context-lambda' });
