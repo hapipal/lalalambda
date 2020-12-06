@@ -2,4 +2,11 @@ version: ~> 1.0
 
 import:
   - hapipal/ci-config-travis:node_js.yml@master
-  - hapipal/ci-config-travis:hapi_all.yml@master
+
+env:
+  - HAPI_VERSION="19" SERVERLESS_VERSION="1"
+  - HAPI_VERSION="20" SERVERLESS_VERSION="2"
+
+install:
+  - "npm install"
+  - "npm install @hapi/hapi@$HAPI_VERSION" "serverless@$SERVERLESS_VERSION"

@@ -48,11 +48,14 @@ exports.makeServerless = (servicePath, argv) => {
             await run.call(serverless);
         }
         finally {
+
             // Something between serverless 1.77.1 and 1.78.0 made this cache clear necessary.
             // When reusing closet/offline-canvas the parsed serverless.yaml object is being
             // reused each time, which caused lambda functions from earlier tests to show-up
-            // in later tests (serverless.config.functions).  Super odd!
-            ServerlessConfigFile.getServerlessConfigFile.clear();
+            // in later tests (serverless.config.functions).  Super odd!  In serverless v1 and
+            // v2 the cache can be accessed, but in slightly different ways:
+            const cache = ServerlessConfigFile.getServerlessConfigFile.cache || ServerlessConfigFile.getServerlessConfigFile;
+            cache.clear();
         }
 
         return StripAnsi(serverless.cli.output);

@@ -917,6 +917,14 @@ describe('Lalalambda', () => {
 
         describe('http handler', () => {
 
+            before(async () => {
+
+                // Warm-up serverless-offline to avoid timing issues during tests
+                const serverless = Helpers.makeServerless('offline-canvas', ['offline', 'start']);
+                await serverless.init();
+                await Helpers.offline(serverless, () => null).run();
+            });
+
             it('handles a simple request with query params.', async (flags) => {
 
                 const serverless = Helpers.makeServerless('offline-canvas', ['offline', 'start']);
