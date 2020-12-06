@@ -1,7 +1,12 @@
 # API
-Lalalambda is one package that doubles as 1. a hapi plugin and 2. a [Serverless framework](https://github.com/serverless/serverless) plugin.  These two plugins work together to allow you to define lambda functions in hapi that can be packaged and deployed using the Serverless framework to [AWS Lambda](https://aws.amazon.com/lambda/).
 
-> We are open to [expand](https://github.com/hapipal/lalalambda/issues/1) [support](https://github.com/hapipal/lalalambda/issues/2) for providers other than AWS with your help!
+Serverless functions powered by hapijs
+
+> **Note**
+>
+> Lalalambda is intended for use with hapi v19+, serverless v1 and v2, and nodejs v12+ (see v1 for lower support).
+
+Lalalambda is one package that doubles as 1. a hapi plugin and 2. a [Serverless framework](https://github.com/serverless/serverless) plugin.  These two plugins work together to allow you to define lambda functions in hapi that can be packaged and deployed using the Serverless framework to [AWS Lambda](https://aws.amazon.com/lambda/).
 
 ## The hapi plugin
 The hapi plugin is responsible for the interface to,
@@ -21,7 +26,7 @@ It only has one plugin registration option, which is used to configure the entir
 **Example**
 ```js
 await server.register({
-    plugin: require('lalalambda'),
+    plugin: require('@hapipal/lalalambda'),
     options: {
         lambdaify: true
     }
@@ -116,5 +121,5 @@ custom:
     serverPath: some/relative/path/to/server.js
 
 plugins:
-  - lalalambda
+  - @hapipal/lalalambda
 ```

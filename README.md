@@ -5,14 +5,17 @@ Serverless functions powered by hapijs
 
 Lead Maintainer - [Devin Ivy](https://github.com/devinivy)
 
+## Installation
+> See further [installation and setup](#installation-and-setup) instructions below for more information.
+
+```sh
+npm install @hapipal/lalalambda
+```
+
 ## Usage
 > See also the [API Reference](API.md)
 >
-> **Note**
->
-> Lalalambda is intended for use with hapi v17+ and nodejs v8+.  Currently only deployments to [AWS Lambda](https://aws.amazon.com/lambda/) are supported, but we are open to [expand](https://github.com/hapipal/lalalambda/issues/1) [support](https://github.com/hapipal/lalalambda/issues/2) with your help!
->
-> You can skip down the page if you're looking for [installation instructions](#installation).
+> Lalalambda is intended for use with hapi v19+, serverless v1 and v2, and nodejs v12+ (see v1 for lower support).  Currently only deployments to [AWS Lambda](https://aws.amazon.com/lambda/) are supported, but we are open to [expand](https://github.com/hapipal/lalalambda/issues/1) [support](https://github.com/hapipal/lalalambda/issues/2) with your help!
 
 Lalalambda offers three core features integrating [hapi](https://hapijs.com) with the [Serverless framework](https://github.com/serverless/serverless):
 
@@ -32,7 +35,7 @@ Let's take a quick look at a code example for each of these features.
 'use strict';
 
 const Hapi = require('@hapi/hapi');
-const Lalalambda = require('lalalambda');
+const Lalalambda = require('@hapipal/lalalambda');
 
 exports.deployment = async () => {
 
@@ -60,7 +63,7 @@ exports.deployment = async () => {
 };
 ```
 
-Assuming you've already followed [installation](#installation), now just deploy to get a URL to your hapi server deployed as a lambda function!
+Assuming you've already followed [installation](#installation-and-setup), now just deploy to get a URL to your hapi server deployed as a lambda function!
 ```sh
 npx serverless deploy
 ```
@@ -71,7 +74,7 @@ npx serverless deploy
 'use strict';
 
 const Hapi = require('@hapi/hapi');
-const Lalalambda = require('lalalambda');
+const Lalalambda = require('@hapipal/lalalambda');
 
 exports.deployment = async () => {
 
@@ -101,7 +104,7 @@ exports.deployment = async () => {
 };
 ```
 
-Assuming you've already followed [installation](#installation), now just deploy to get a URL to your hapi route deployed as a lambda function!
+Assuming you've already followed [installation](#installation-and-setup), now just deploy to get a URL to your hapi route deployed as a lambda function!
 ```sh
 npx serverless deploy
 ```
@@ -115,7 +118,7 @@ Here we'll create a lambda that is scheduled to log the most recent earthquake o
 
 const Hapi = require('@hapi/hapi');
 const Wreck = require('@hapi/wreck');
-const Lalalambda = require('lalalambda');
+const Lalalambda = require('@hapipal/lalalambda');
 
 exports.deployment = async () => {
 
@@ -154,20 +157,20 @@ exports.deployment = async () => {
 };
 ```
 
-Assuming you've already followed [installation](#installation), now just deploy to start logging earthquake data!  You can then view these logs in realtime from your terminal.
+Assuming you've already followed [installation](#installation-and-setup), now just deploy to start logging earthquake data!  You can then view these logs in realtime from your terminal.
 ```sh
 npx serverless deploy
 npx serverless logs --tail --function earthquakes
 ```
 
 
-### Installation
+### Installation and setup
 Lalalambda is one package that doubles as 1. a hapi plugin and 2. a [Serverless framework](https://github.com/serverless/serverless) plugin.  These two plugins work together to allow you to define lambda functions in hapi that can be packaged and deployed using the Serverless framework to AWS Lambda.  A basic installation has just a few steps.
 
 1. Install the lalalambda and serverless packages from npm.
 
    ```sh
-   npm install lalalambda
+   npm install @hapipal/lalalambda
    npm install --save-dev serverless
    ```
 
@@ -182,7 +185,7 @@ Lalalambda is one package that doubles as 1. a hapi plugin and 2. a [Serverless 
      runtime: nodejs12.x
 
    plugins:
-     - lalalambda
+     - @hapipal/lalalambda
    ```
 
     There is also an optional configuration for declaring the path to the server file.
@@ -200,7 +203,7 @@ Lalalambda is one package that doubles as 1. a hapi plugin and 2. a [Serverless 
    > If you're using [the pal boilerplate](https://github.com/hapipal/boilerplate) then simply add lalalambda to your [manifest's](https://github.com/hapipal/boilerplate/blob/pal/server/manifest.js) `plugins` section.
 
    ```js
-   await server.register(require('lalalambda'));
+   await server.register(require('@hapipal/lalalambda'));
    ```
 
 4. Ensure `server.js` or `server/index.js` exports a function named `deployment` that returns your configured hapi server.
@@ -214,13 +217,13 @@ Lalalambda is one package that doubles as 1. a hapi plugin and 2. a [Serverless 
    'use strict';
 
    const Hapi = require('@hapi/hapi');
-   const Lalalambda = require('lalalambda');
+   const Lalalambda = require('@hapipal/lalalambda');
    const AppPlugin = require('./app');
 
    // Lalalambda will look for and use exports.deployment()
    // as defined below to obtain a hapi server
 
-   exports.deployment = async (start) => {
+   exports.deployment = async ({ start } = {}) => {
 
        const server = Hapi.server();
 
@@ -241,7 +244,7 @@ Lalalambda is one package that doubles as 1. a hapi plugin and 2. a [Serverless 
    // run directly from the CLI, i.e. "node ./server"
 
    if (!module.parent) {
-       exports.deployment(true);
+       exports.deployment({ start: true });
    }
    ```
 
