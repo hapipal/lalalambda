@@ -103,7 +103,7 @@ Currently the plugin only supports the [`aws` Serverless provider](https://serve
 
 2. Writing lambda handler files during packaging, deployment, local invocation, etc., and later cleaning them up.  These files will be written in your project root's `_lalalambda/` directory.
 
-In order to interoperate with your hapi server, it is expected that `server.js` or `server/index.js` export an async function named `deployment` returning your configured hapi server.  This server should have the [lalalambda hapi plugin](#the-hapi-plugin) registered.  The path to `server.js` can also be customized through the `custom.lalalambda` config section as shown below.
+In order to interoperate with your hapi server, it is expected that `server.js` or `server/index.js` export an async function named `deployment` returning your configured hapi server.  This server should have the [lalalambda hapi plugin](#the-hapi-plugin) registered, and it may be [initialized](https://hapi.dev/api/#server.initialize()) but should not be [started](https://hapi.dev/api/#server.start()).  The path to `server.js` can also be customized through the `custom.lalalambda` config section as shown below.
 
 A minimal Serverless [config](https://serverless.com/framework/docs/providers/aws/guide/serverless.yml/) utilizing lalalambda will look like this:
 

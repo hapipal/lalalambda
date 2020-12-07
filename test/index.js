@@ -1183,14 +1183,14 @@ describe('Lalalambda', () => {
 
         it('requires an AWS provider.', async () => {
 
-            const serverless = Helpers.makeServerless('bad-provider', []);
+            const serverless = Helpers.makeServerless('bad-provider', ['print']);
 
             await expect(serverless.init()).to.reject(/Lalalambda requires using the serverless AWS provider\./);
         });
 
         it('requires the nodejs runtime (incorrect).', async () => {
 
-            const serverless = Helpers.makeServerless('bad-runtime', []);
+            const serverless = Helpers.makeServerless('bad-runtime', ['print']);
 
             await serverless.init();
 
@@ -1199,7 +1199,7 @@ describe('Lalalambda', () => {
 
         it('requires the nodejs runtime (missing).', async () => {
 
-            const serverless = Helpers.makeServerless('bad-runtime-missing', []);
+            const serverless = Helpers.makeServerless('bad-runtime-missing', ['print']);
 
             await serverless.init();
 
@@ -1208,7 +1208,7 @@ describe('Lalalambda', () => {
 
         it('requires the nodejs runtime >=12.', async () => {
 
-            const serverless = Helpers.makeServerless('bad-runtime-version', []);
+            const serverless = Helpers.makeServerless('bad-runtime-version', ['print']);
 
             await serverless.init();
 
@@ -1217,7 +1217,7 @@ describe('Lalalambda', () => {
 
         it('checks per-lambda nodejs runtime.', async () => {
 
-            const serverless = Helpers.makeServerless('runtime-per-lambda', []);
+            const serverless = Helpers.makeServerless('runtime-per-lambda', ['print']);
 
             await serverless.init();
 
@@ -1226,7 +1226,7 @@ describe('Lalalambda', () => {
 
         it('merges serverless and hapi lambda configs.', async () => {
 
-            const serverless = Helpers.makeServerless('config-merge', []);
+            const serverless = Helpers.makeServerless('config-merge', ['print']);
 
             await serverless.init();
             await serverless.run();
@@ -1235,6 +1235,7 @@ describe('Lalalambda', () => {
             const config2 = serverless.service.getFunction('config-merge-lambda-two');
 
             expect(config1).to.equal({
+                name: 'my-service-dev-config-merge-lambda-one',
                 include: ['include.js'],
                 exclude: ['exclude.js'],
                 events: [{ http: { method: 'get', path: '/one' } }],
@@ -1243,6 +1244,7 @@ describe('Lalalambda', () => {
             });
 
             expect(config2).to.equal({
+                name: 'my-service-dev-config-merge-lambda-two',
                 runtime: 'nodejs12.x',
                 include: ['also-include.js', 'include.js'],
                 exclude: ['also-exclude.js', 'exclude.js'],
@@ -1258,7 +1260,7 @@ describe('Lalalambda', () => {
 
         it('fails when server file does not exist', async () => {
 
-            const serverless = Helpers.makeServerless('missing-server-file', []);
+            const serverless = Helpers.makeServerless('missing-server-file', ['print']);
 
             await serverless.init();
 
@@ -1267,7 +1269,7 @@ describe('Lalalambda', () => {
 
         it('can load the server file with file extension from a custom path', async () => {
 
-            const serverless = Helpers.makeServerless('server-file-location-with-file-extension', []);
+            const serverless = Helpers.makeServerless('server-file-location-with-file-extension', ['print']);
 
             await serverless.init();
 
@@ -1276,7 +1278,7 @@ describe('Lalalambda', () => {
 
         it('can load the server file without file extension from a custom path', async () => {
 
-            const serverless = Helpers.makeServerless('server-file-location-without-file-extension', []);
+            const serverless = Helpers.makeServerless('server-file-location-without-file-extension', ['print']);
 
             await serverless.init();
 
@@ -1285,7 +1287,7 @@ describe('Lalalambda', () => {
 
         it('fails when deployment does not exist.', async () => {
 
-            const serverless = Helpers.makeServerless('bad-deployment-missing', []);
+            const serverless = Helpers.makeServerless('bad-deployment-missing', ['print']);
 
             await serverless.init();
 
@@ -1294,7 +1296,7 @@ describe('Lalalambda', () => {
 
         it('fails when deployment has wrong exports.', async () => {
 
-            const serverless = Helpers.makeServerless('bad-deployment-exports', []);
+            const serverless = Helpers.makeServerless('bad-deployment-exports', ['print']);
 
             await serverless.init();
 
@@ -1303,7 +1305,7 @@ describe('Lalalambda', () => {
 
         it('fails when deployment throws while being required.', async () => {
 
-            const serverless = Helpers.makeServerless('bad-deployment-error', []);
+            const serverless = Helpers.makeServerless('bad-deployment-error', ['print']);
 
             await serverless.init();
 

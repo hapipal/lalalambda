@@ -1,7 +1,7 @@
 # lalalambda
 Serverless functions powered by hapijs
 
-[![Build Status](https://travis-ci.org/hapipal/lalalambda.svg?branch=master)](https://travis-ci.org/hapipal/lalalambda) [![Coverage Status](https://coveralls.io/repos/hapipal/lalalambda/badge.svg?branch=master&service=github)](https://coveralls.io/github/hapipal/lalalambda?branch=master)
+[![Build Status](https://travis-ci.com/hapipal/lalalambda.svg?branch=master)](https://travis-ci.com/hapipal/lalalambda) [![Coverage Status](https://coveralls.io/repos/hapipal/lalalambda/badge.svg?branch=master&service=github)](https://coveralls.io/github/hapipal/lalalambda?branch=master)
 
 Lead Maintainer - [Devin Ivy](https://github.com/devinivy)
 
@@ -206,7 +206,7 @@ Lalalambda is one package that doubles as 1. a hapi plugin and 2. a [Serverless 
    await server.register(require('@hapipal/lalalambda'));
    ```
 
-4. Ensure `server.js` or `server/index.js` exports a function named `deployment` that returns your configured hapi server.
+4. Ensure `server.js` or `server/index.js` exports a function named `deployment` that returns your configured hapi server.  Note that the server may be [initialized](https://hapi.dev/api/#server.initialize()) but should not be [started](https://hapi.dev/api/#server.start()).
 
    > If you're using [the pal boilerplate](https://github.com/hapipal/boilerplate) then you can skip this step!
 
